@@ -10,6 +10,7 @@ import com.bb.googleplaybb.R;
 import com.bb.googleplaybb.domain.TypeInfo;
 import com.bb.googleplaybb.http.HttpHelper;
 import com.bb.googleplaybb.net.NetHelper;
+import com.bb.googleplaybb.ui.activity.AppOfTypeActivity;
 import com.bb.googleplaybb.utils.BitmapHelper;
 import com.bb.googleplaybb.utils.UIUtils;
 import com.lidroid.xutils.BitmapUtils;
@@ -68,13 +69,16 @@ public class TypeHolder extends BaseHolder<TypeInfo> implements View.OnClickList
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.ll_root1:
-                Toast.makeText(UIUtils.getContext(), data.name1, Toast.LENGTH_SHORT).show();
+//                Toast.makeText(UIUtils.getContext(), data.name1, Toast.LENGTH_SHORT).show();
+                AppOfTypeActivity.startAppOfTypeActivity(UIUtils.getContext(),"app/applist");
                 break;
             case R.id.ll_root2:
-                Toast.makeText(UIUtils.getContext(), data.name2, Toast.LENGTH_SHORT).show();
+                AppOfTypeActivity.startAppOfTypeActivity(UIUtils.getContext(),"app/applist");
+//                Toast.makeText(UIUtils.getContext(), data.name2, Toast.LENGTH_SHORT).show();
                 break;
             case R.id.ll_root3:
-                Toast.makeText(UIUtils.getContext(), data.name3, Toast.LENGTH_SHORT).show();
+                AppOfTypeActivity.startAppOfTypeActivity(UIUtils.getContext(),"app/applist");
+//                Toast.makeText(UIUtils.getContext(), data.name3, Toast.LENGTH_SHORT).show();
                 break;
         }
     }

@@ -1,5 +1,7 @@
 package com.bb.googleplaybb.ui.activity;
 
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -34,6 +36,13 @@ public class HomeDetailActivity extends AppCompatActivity {
     private AppInfo appinfo;
     private Toolbar mToolbar;
     private String mAppName;
+
+    public static void startHomeDetailActivity(Context context,String packageName,String appName){
+        Intent intent = new Intent(context, HomeDetailActivity.class);
+        intent.putExtra(PACKAGENAME ,packageName);
+        intent.putExtra(APPNAME ,appName);
+        context.startActivity(intent);
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
