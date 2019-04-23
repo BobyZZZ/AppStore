@@ -1,12 +1,15 @@
 package com.bb.googleplaybb.ui.fragment;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bb.googleplaybb.domain.RecommendInfo;
 import com.bb.googleplaybb.net.protocol.RecommendNetProtocol;
+import com.bb.googleplaybb.ui.activity.HomeDetailActivity;
 import com.bb.googleplaybb.ui.view.LoadingPage;
 import com.bb.googleplaybb.ui.view.fly.StellarMap;
 import com.bb.googleplaybb.utils.UIUtils;
@@ -21,7 +24,7 @@ import java.util.Random;
 public class RecommendFragment extends BaseFragment {
 
     private RecommendNetProtocol mRecommendProtocol;
-    private ArrayList<String> data;
+    private ArrayList<RecommendInfo> data;
 
     @Override
     public LoadingPage.ResultState onLoad() {
@@ -46,7 +49,7 @@ public class RecommendFragment extends BaseFragment {
 
         @Override
         public int getGroupCount() {
-            return 2;
+            return 3;
         }
 
         //第group组有多少数据
@@ -65,7 +68,8 @@ public class RecommendFragment extends BaseFragment {
             position += group * getCount(group - 1);
             System.out.println("position:" + position);
             TextView textView = new TextView(UIUtils.getContext());
-            final String text = RecommendFragment.this.data.get(position);
+            final RecommendInfo recommendInfo = data.get(position);
+            final String text = recommendInfo.name;
             textView.setText(text);
 //            int padding = UIUtils.dip2px(10);
 //            textView.setPadding(padding, padding, padding, padding);
@@ -84,7 +88,12 @@ public class RecommendFragment extends BaseFragment {
             textView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Toast.makeText(UIUtils.getContext(), text, Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(UIUtils.getContext(), text, Toast.LENGTH_SHORT).show();
+                    //进入详情页
+                    Intent intent = new Intent(UIUtils.getContext(), HomeDetailActivity.class);
+                    intent.putExtra(HomeDetailActivity.PACKAGENAME,recommendInfo.packageName);
+                    intent.putExtra(HomeDetailActivity.APPNAME,recommendInfo.name);
+                    startActivity(intent);
                 }
             });
             return textView;

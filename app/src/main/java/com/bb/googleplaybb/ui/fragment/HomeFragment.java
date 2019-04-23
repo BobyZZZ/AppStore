@@ -154,7 +154,8 @@ public class HomeFragment extends BaseFragment {
                 AppInfo appInfo = data.get(position - 1);//减去头布局
                 //打开详情页面
                 Intent intent = new Intent(UIUtils.getContext(), HomeDetailActivity.class);
-                intent.putExtra("packageName", appInfo.packageName);
+                intent.putExtra(HomeDetailActivity.PACKAGENAME, appInfo.packageName);
+                intent.putExtra(HomeDetailActivity.APPNAME, appInfo.name);
                 startActivity(intent);
             }
         });

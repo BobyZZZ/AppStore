@@ -63,7 +63,7 @@ public class TypeNetProtocol extends BaseNetProtocol<ArrayList<TypeInfo>> {
     }
 
     @Override
-    public String getkey() {
+    public String getKey() {
         return "app/categorylist";
     }
 

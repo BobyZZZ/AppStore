@@ -52,7 +52,7 @@ public class AppNetProtocol extends BaseNetProtocol<ArrayList<AppInfo>> {
     }
 
     @Override
-    public String getkey() {
+    public String getKey() {
         return "app/applist";
     }
 

@@ -83,9 +83,9 @@ public abstract class BaseNetProtocol<T> {
         Response response = null;
         if (index > -1) {
             int newIndex = (index / 20) % 3;
-            response = NetHelper.get(NetHelper.URL + getkey() + newIndex);
+            response = NetHelper.get(NetHelper.URL + getKey() + newIndex);
         } else {
-            response = NetHelper.get(NetHelper.URL + getkey());
+            response = NetHelper.get(NetHelper.URL + getKey());
         }
         String json = null;
         if (response != null) {
@@ -112,7 +112,7 @@ public abstract class BaseNetProtocol<T> {
         FileWriter writer = null;
         try {
             writer = new FileWriter(cacheFile);
-            long deadLine = System.currentTimeMillis() + 15 * 60 * 1000;
+            long deadLine = System.currentTimeMillis() + 60 * 1000;
             writer.write(deadLine + "\n");
             writer.flush();
 
@@ -129,7 +129,7 @@ public abstract class BaseNetProtocol<T> {
 
     public abstract String getParams();
 
-    public abstract String getkey();
+    public abstract String getKey();
 
     public String getCacheName(){
         return "";

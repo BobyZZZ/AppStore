@@ -37,7 +37,6 @@ public class FragmentFactory {
                     baseFragment = new GameFragment();
                     break;
                 case 3:
-//                    baseFragment = new TopicFragment();
                     baseFragment = new TopicFragment();
                     break;
                 case 4:

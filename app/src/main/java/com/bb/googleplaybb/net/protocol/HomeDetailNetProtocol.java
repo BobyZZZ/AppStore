@@ -72,7 +72,7 @@ public class HomeDetailNetProtocol extends BaseNetProtocol<AppInfo> {
     }
 
     @Override
-    public String getkey() {
+    public String getKey() {
         return "app/"+packageName+"/"+packageName;
     }
 

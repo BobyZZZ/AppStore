@@ -44,7 +44,7 @@ public class TopicNetProtocol extends BaseNetProtocol<ArrayList<TopicInfo>> {
     }
 
     @Override
-    public String getkey() {
+    public String getKey() {
         return "app/topiclist";
     }
 

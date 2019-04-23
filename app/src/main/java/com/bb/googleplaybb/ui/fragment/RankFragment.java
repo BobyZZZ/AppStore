@@ -1,5 +1,6 @@
 package com.bb.googleplaybb.ui.fragment;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.StateListDrawable;
 import android.util.TypedValue;
@@ -9,7 +10,9 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bb.googleplaybb.domain.RecommendInfo;
 import com.bb.googleplaybb.net.protocol.RankNetProtocol;
+import com.bb.googleplaybb.ui.activity.HomeDetailActivity;
 import com.bb.googleplaybb.ui.view.LoadingPage;
 import com.bb.googleplaybb.ui.view.MyFlowLayout;
 import com.bb.googleplaybb.utils.DrawableUtils;
@@ -25,7 +28,7 @@ import java.util.Random;
 public class RankFragment extends BaseFragment {
 
     private RankNetProtocol mRankProtocol;
-    private ArrayList<String> data;
+    private ArrayList<RecommendInfo> data;
 
     @Override
     public LoadingPage.ResultState onLoad() {
@@ -46,7 +49,8 @@ public class RankFragment extends BaseFragment {
         flowLayout.setPadding(padding, padding, padding, padding);
 
         for (int i = 0; i < data.size(); i++) {
-            final String text = this.data.get(i);
+            final RecommendInfo recommendInfo = data.get(i);
+            final String text = recommendInfo.name;
 
             TextView textView = new TextView(UIUtils.getContext());
             textView.setGravity(Gravity.CENTER);
@@ -78,7 +82,11 @@ public class RankFragment extends BaseFragment {
             textView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Toast.makeText(UIUtils.getContext(),text,Toast.LENGTH_SHORT).show();
+                    //进入详情页
+                    Intent intent = new Intent(UIUtils.getContext(), HomeDetailActivity.class);
+                    intent.putExtra(HomeDetailActivity.PACKAGENAME,recommendInfo.packageName);
+                    intent.putExtra(HomeDetailActivity.APPNAME,recommendInfo.name);
+                    startActivity(intent);
                 }
             });
             flowLayout.addView(textView);

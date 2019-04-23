@@ -27,17 +27,21 @@ import com.bb.googleplaybb.utils.UIUtils;
  */
 
 public class HomeDetailActivity extends AppCompatActivity {
+    public static final String PACKAGENAME = "packageName";
+    public static final String APPNAME = "appName";
 
     private String packageName;
     private AppInfo appinfo;
     private Toolbar mToolbar;
+    private String mAppName;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home_detail);
         FrameLayout flContainer = findViewById(R.id.fl_container);
-        packageName = getIntent().getStringExtra("packageName");
+        packageName = getIntent().getStringExtra(PACKAGENAME);
+        mAppName = getIntent().getStringExtra(APPNAME);
 
         LoadingPage mLoadingPage = new LoadingPage(UIUtils.getContext()) {
             @Override
@@ -65,7 +69,7 @@ public class HomeDetailActivity extends AppCompatActivity {
     private void initToolBar() {
         mToolbar = findViewById(R.id.toolbar);
         mToolbar.setTitleTextColor(Color.BLACK);
-        mToolbar.setTitle(packageName);
+        mToolbar.setTitle(mAppName);
         setSupportActionBar(mToolbar);
 
         //设置返回键

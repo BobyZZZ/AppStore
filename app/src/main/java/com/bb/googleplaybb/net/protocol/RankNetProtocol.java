@@ -1,7 +1,10 @@
 package com.bb.googleplaybb.net.protocol;
 
+import com.bb.googleplaybb.domain.RecommendInfo;
+
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -9,17 +12,21 @@ import java.util.ArrayList;
  * Created by Boby on 2018/7/14.
  */
 
-public class RankNetProtocol extends BaseNetProtocol<ArrayList<String>> {
+public class RankNetProtocol extends BaseNetProtocol<ArrayList<RecommendInfo>> {
     @Override
-    public ArrayList<String> parseData(String json) {
+    public ArrayList<RecommendInfo> parseData(String json) {
         if (json != null) {
             try {
                 JSONArray ja = new JSONArray(json);
                 if (ja != null) {
-                    ArrayList<String> list = new ArrayList<>();
+                    ArrayList<RecommendInfo> list = new ArrayList<>();
                     for(int i = 0 ;i<ja.length();i++) {
-                        String keyword = (String) ja.get(i);
-                        list.add(keyword);
+                        RecommendInfo recommendInfo = new RecommendInfo();
+                        JSONObject jo = ja.getJSONObject(i);
+                        recommendInfo.id = jo.getString("id");
+                        recommendInfo.name = jo.getString("name");
+                        recommendInfo.packageName = jo.getString("packageName");
+                        list.add(recommendInfo);
                     }
                     return list;
                 }
@@ -36,7 +43,7 @@ public class RankNetProtocol extends BaseNetProtocol<ArrayList<String>> {
     }
 
     @Override
-    public String getkey() {
+    public String getKey() {
         return "app/hotlist";
     }
 

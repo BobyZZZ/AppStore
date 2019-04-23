@@ -68,7 +68,7 @@ public class HomeNetProtocol extends BaseNetProtocol<ArrayList<AppInfo>>{
     }
 
     @Override
-    public String getkey() {
+    public String getKey() {
         return "app/homelist";
     }
 
