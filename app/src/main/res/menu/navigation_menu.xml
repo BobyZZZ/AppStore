@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/group1"
+            android:title="管理">
+            <menu>
+                <group android:checkableBehavior="single">
+                    <item
+                        android:id="@+id/navigation_modifyIP"
+                        android:icon="@drawable/ic_home"
+                        android:title="修改ip"></item>
+                    <!--<item-->
+                        <!--android:id="@+id/navigation_manage_app"-->
+                        <!--android:icon="@drawable/ic_home"-->
+                        <!--android:title="应用管理"></item>-->
+                </group>
+            </menu>
+        </item>
+        <!--<item-->
+            <!--android:id="@+id/group2"-->
+            <!--android:title="分组2">-->
+            <!--<menu>-->
+                <!--<group android:checkableBehavior="single">-->
+                    <!--<item-->
+                        <!--android:id="@+id/navigation_menu21"-->
+                        <!--android:icon="@drawable/ic_home"-->
+                        <!--android:title="分组2的我的动态"></item>-->
+                <!--</group>-->
+            <!--</menu>-->
+        <!--</item>-->
+    </group>
+</menu>
