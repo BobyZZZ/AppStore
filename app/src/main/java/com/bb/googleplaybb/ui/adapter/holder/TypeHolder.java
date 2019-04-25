@@ -1,5 +1,6 @@
 package com.bb.googleplaybb.ui.adapter.holder;
 
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -56,29 +57,41 @@ public class TypeHolder extends BaseHolder<TypeInfo> implements View.OnClickList
     public void refreshView(TypeInfo data) {
         this.data = data;
 
-        tvName1.setText(data.name1);
-        tvName2.setText(data.name2);
-        tvName3.setText(data.name3);
+        if (!shouldHide(data.name1, data.url1)) {
+            tvName1.setText(data.name1);
+            mBitmapUtils.display(ivIcon1, NetHelper.URL + data.url1);
+        } else {
+            llRoot1.setVisibility(View.GONE);
+        }
+        if (!shouldHide(data.name2, data.url2)) {
+            tvName2.setText(data.name2);
+            mBitmapUtils.display(ivIcon2, NetHelper.URL + data.url2);
+        } else {
+            llRoot2.setVisibility(View.GONE);
+        }
+        if (!shouldHide(data.name3, data.url3)) {
+            tvName3.setText(data.name3);
+            mBitmapUtils.display(ivIcon3, NetHelper.URL + data.url3);
+        } else {
+            llRoot3.setVisibility(View.GONE);
+        }
+    }
 
-        mBitmapUtils.display(ivIcon1, NetHelper.URL + data.url1);
-        mBitmapUtils.display(ivIcon2, NetHelper.URL + data.url2);
-        mBitmapUtils.display(ivIcon3, NetHelper.URL + data.url3);
+    private boolean shouldHide(String name, String url) {
+        return name == null || TextUtils.isEmpty(name) || url == null || TextUtils.isEmpty(url);
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.ll_root1:
-//                Toast.makeText(UIUtils.getContext(), data.name1, Toast.LENGTH_SHORT).show();
-                AppOfTypeActivity.startAppOfTypeActivity(UIUtils.getContext(),"app/applist");
+                AppOfTypeActivity.startAppOfTypeActivity(UIUtils.getContext(), data.type1);
                 break;
             case R.id.ll_root2:
-                AppOfTypeActivity.startAppOfTypeActivity(UIUtils.getContext(),"app/applist");
-//                Toast.makeText(UIUtils.getContext(), data.name2, Toast.LENGTH_SHORT).show();
+                AppOfTypeActivity.startAppOfTypeActivity(UIUtils.getContext(), data.type2);
                 break;
             case R.id.ll_root3:
-                AppOfTypeActivity.startAppOfTypeActivity(UIUtils.getContext(),"app/applist");
-//                Toast.makeText(UIUtils.getContext(), data.name3, Toast.LENGTH_SHORT).show();
+                AppOfTypeActivity.startAppOfTypeActivity(UIUtils.getContext(), data.type3);
                 break;
         }
     }

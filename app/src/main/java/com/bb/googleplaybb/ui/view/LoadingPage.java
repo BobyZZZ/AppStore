@@ -4,7 +4,9 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import com.bb.googleplaybb.R;
@@ -75,11 +77,6 @@ public abstract class LoadingPage extends FrameLayout {
     }
 
     private void setRightPage() {
-//        if (mCurrentState == STATE_UNDO || mCurrentState == STATE_LOADING) {
-//            mLoadingView.setVisibility(View.VISIBLE);
-//        } else {
-//            mLoadingView.setVisibility(View.GONE);
-//        }
         mLoadingView.setVisibility((mCurrentState == STATE_UNDO ||
                 mCurrentState == STATE_LOADING) ? View.VISIBLE : View.GONE);
 
@@ -87,7 +84,10 @@ public abstract class LoadingPage extends FrameLayout {
         mEmptyView.setVisibility((mCurrentState == STATE_EMPTY) ? View.VISIBLE : View.GONE);
 
 
-        if (mCurrentState == STATE_SUCCESS && mSuccessView == null) {
+        if (mCurrentState == STATE_SUCCESS) {
+            if (mSuccessView != null) {
+                removeView(mSuccessView);
+            }
             mSuccessView = onCreateSuccessView();
             if (mSuccessView != null) {
                 addView(mSuccessView);
@@ -100,7 +100,6 @@ public abstract class LoadingPage extends FrameLayout {
     }
 
     public void loadData() {
-        System.out.println("loadData................");
         if (mCurrentState != STATE_LOADING) {
             mCurrentState = STATE_LOADING;
 
@@ -125,12 +124,14 @@ public abstract class LoadingPage extends FrameLayout {
 
     /**
      * 加载数据
+     *
      * @return
      */
     protected abstract ResultState onLoad();
 
     /**
      * 获取数据成功时调用
+     *
      * @return
      */
     public abstract View onCreateSuccessView();

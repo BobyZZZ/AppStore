@@ -52,7 +52,6 @@ public class AppOfTypeActivity extends AppCompatActivity {
     private BaseNetProtocol<ArrayList<AppInfo>> mProtocol;
     private ArrayList<AppInfo> mData;
     private RecyclerView mRecyclerView;
-
     private boolean hasMore;
 
 
@@ -135,19 +134,19 @@ public class AppOfTypeActivity extends AppCompatActivity {
 
             @Override
             public String getKey() {
-                return key;
+                return "app/" + key;
             }
 
             @Override
             public String getCacheName() {
-                return "applist";
+                return key;
             }
         };
     }
 
     public LoadingPage.ResultState loadData() {
         mData = mProtocol.getData(0);
-        if (mData.size() >= 20) {
+        if (mData != null && mData.size() >= 20) {
             hasMore = true;
         }
         return check(mData);
@@ -210,7 +209,7 @@ public class AppOfTypeActivity extends AppCompatActivity {
         return LoadingPage.ResultState.RESULT_ERROR;
     }
 
-    public class TypeAdapter extends RecyclerView.Adapter<TypeAdapter.TypeHolder>{
+    public class TypeAdapter extends RecyclerView.Adapter<TypeAdapter.TypeHolder> {
         @Override
         public TypeHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             View view = View.inflate(parent.getContext(), R.layout.list_item_home, null);
@@ -272,7 +271,7 @@ public class AppOfTypeActivity extends AppCompatActivity {
             });
         }
 
-        public class TypeHolder extends RecyclerView.ViewHolder implements AppDownloadManager.DownloadObserver,View.OnClickListener {
+        public class TypeHolder extends RecyclerView.ViewHolder implements AppDownloadManager.DownloadObserver, View.OnClickListener {
             private TextView tvName, tvSize, tvDes;
             private ImageView ivIcon;
             private RatingBar rbStart;

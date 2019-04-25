@@ -1,12 +1,16 @@
 package com.bb.googleplaybb.ui.fragment;
 
+import android.content.Intent;
 import android.view.View;
+import android.widget.AdapterView;
 
 import com.bb.googleplaybb.domain.AppInfo;
 import com.bb.googleplaybb.net.protocol.AppNetProtocol;
+import com.bb.googleplaybb.ui.activity.HomeDetailActivity;
 import com.bb.googleplaybb.ui.adapter.MyBaseAdapter;
 import com.bb.googleplaybb.ui.adapter.holder.AppHolder;
 import com.bb.googleplaybb.ui.adapter.holder.BaseHolder;
+import com.bb.googleplaybb.ui.adapter.holder.HomeHolder;
 import com.bb.googleplaybb.ui.view.LoadingPage;
 import com.bb.googleplaybb.ui.view.MyListView;
 import com.bb.googleplaybb.utils.UIUtils;
@@ -32,35 +36,38 @@ public class AppFragment extends BaseFragment {
     @Override
     public View onCreateSuccessView() {
         MyListView view = new MyListView(UIUtils.getContext());
-        view.setAdapter(new AppAdapter(data));
+        view.setAdapter(new HomeAdapter(data));
+
+        view.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                System.out.println("onItemClick:"+position);
+                AppInfo appInfo = data.get(position);//减去头布局
+                //打开详情页面
+                Intent intent = new Intent(UIUtils.getContext(), HomeDetailActivity.class);
+                intent.putExtra(HomeDetailActivity.PACKAGENAME, appInfo.packageName);
+                intent.putExtra(HomeDetailActivity.APPNAME, appInfo.name);
+                startActivity(intent);
+            }
+        });
         return view;
     }
 
-    class AppAdapter extends MyBaseAdapter<AppInfo> {
+    class HomeAdapter extends MyBaseAdapter<AppInfo> {
 
-        public AppAdapter(ArrayList<AppInfo> data) {
+        public HomeAdapter(ArrayList<AppInfo> data) {
             super(data);
-        }
-
-        //是否允许加载更多
-        @Override
-        public boolean hasMore() {
-            return super.hasMore();
         }
 
         @Override
         protected ArrayList<AppInfo> onLoadMore() {
-//            for (int i = 0; i < 22; i++) {
-//                moreData.add("更多数据" + i);
-//            }
             ArrayList<AppInfo> moreData = mProtocol.getData(data.size());
             return moreData;
         }
 
         @Override
         protected BaseHolder getHolder(int position) {
-            return new AppHolder();
+            return new HomeHolder();
         }
-
     }
 }

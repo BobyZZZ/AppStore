@@ -7,4 +7,5 @@ package com.bb.googleplaybb.domain;
 public class TopicInfo {
     public String url;
     public String des;
+    public String typeUrl;
 }

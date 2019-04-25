@@ -44,5 +44,6 @@ public class TopicHolder extends BaseHolder<TopicInfo> {
                 Glide.with(GooglePlayApplication.getContext()).load(NetHelper.URL + data.url).into(ivPic);
             }
         });
+
     }
 }

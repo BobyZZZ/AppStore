@@ -2,9 +2,11 @@ package com.bb.googleplaybb.ui.fragment;
 
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 
 import com.bb.googleplaybb.domain.TopicInfo;
 import com.bb.googleplaybb.net.protocol.TopicNetProtocol;
+import com.bb.googleplaybb.ui.activity.AppOfTypeActivity;
 import com.bb.googleplaybb.ui.adapter.MyBaseAdapter;
 import com.bb.googleplaybb.ui.adapter.holder.BaseHolder;
 import com.bb.googleplaybb.ui.adapter.holder.TopicHolder;
@@ -34,6 +36,14 @@ public class TopicFragment extends BaseFragment {
     public View onCreateSuccessView() {
         MyListView myListView = new MyListView(UIUtils.getContext());
         myListView.setAdapter(new TopicAdapter(data));
+
+        myListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                TopicInfo topicInfo = data.get(position);
+                AppOfTypeActivity.startAppOfTypeActivity(UIUtils.getContext(),topicInfo.typeUrl);
+            }
+        });
         return myListView;
     }
 
@@ -51,10 +61,5 @@ public class TopicFragment extends BaseFragment {
         protected BaseHolder getHolder(int position) {
             return new TopicHolder();
         }
-    }
-
-    @Override
-    protected void log() {
-        Log.i("zyc", "TopicFragment.onCreateView");
     }
 }

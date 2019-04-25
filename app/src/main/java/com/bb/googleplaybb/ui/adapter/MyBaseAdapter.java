@@ -1,5 +1,6 @@
 package com.bb.googleplaybb.ui.adapter;
 
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -34,6 +35,7 @@ public abstract class MyBaseAdapter<T> extends BaseAdapter {
 
     public MyBaseAdapter(ArrayList<T> data) {
         this.data = data;
+        hasMore = data.size() >= 20;
     }
 
     @Override
@@ -100,6 +102,7 @@ public abstract class MyBaseAdapter<T> extends BaseAdapter {
     }
 
     private boolean isLoadMore;//是否正在加载
+
     private void loadMore(final MoreHolder moreHolder) {
         if (!isLoadMore) {
             isLoadMore = true;
@@ -132,11 +135,13 @@ public abstract class MyBaseAdapter<T> extends BaseAdapter {
 
     }
 
+    private boolean hasMore = true;
+
     /**
      * @return true表示有更多数据，默认有更多数据
      */
     public boolean hasMore() {
-        return true;
+        return hasMore;
     }
 
     protected abstract ArrayList<T> onLoadMore();

@@ -11,31 +11,31 @@
         android:layout_height="wrap_content">
         <ImageView
             android:id="@+id/iv_icon1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="34dp"
+            android:layout_height="15dp"
             android:layout_centerVertical="true"
             android:layout_marginLeft="5dp" />
 
         <ImageView
             android:id="@+id/iv_icon2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="34dp"
+            android:layout_height="15dp"
             android:layout_centerVertical="true"
             android:layout_marginLeft="5dp"
             android:layout_toRightOf="@id/iv_icon1" />
 
         <ImageView
             android:id="@+id/iv_icon3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="34dp"
+            android:layout_height="15dp"
             android:layout_centerVertical="true"
             android:layout_marginLeft="5dp"
             android:layout_toRightOf="@id/iv_icon2" />
 
         <ImageView
             android:id="@+id/iv_icon4"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="34dp"
+            android:layout_height="15dp"
             android:layout_centerVertical="true"
             android:layout_marginLeft="5dp"
             android:layout_toRightOf="@id/iv_icon3" />
@@ -47,13 +47,13 @@
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
             android:layout_marginRight="5dp"
-            android:src="@drawable/arrow_down" />
+            android:src="@drawable/arrow_up" />
     </RelativeLayout>
 
     <LinearLayout
         android:id="@+id/ll_display"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:orientation="vertical">
 
         <LinearLayout

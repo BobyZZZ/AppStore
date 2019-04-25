@@ -24,9 +24,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ui.activity.HomeDetailActivity">
+        <activity android:name=".ui.activity.HomeDetailActivity"
+            android:theme="@style/AppOfTypeTheme"
+            >
         </activity>
         <activity android:name=".ui.activity.AppOfTypeActivity"/>
+        <activity android:name=".ui.activity.TestActivity"
+            android:theme="@style/AppOfTypeTheme"
+            />
 
         <provider
             android:grantUriPermissions="true"

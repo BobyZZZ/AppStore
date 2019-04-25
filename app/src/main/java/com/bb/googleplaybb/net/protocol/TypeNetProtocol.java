@@ -44,6 +44,9 @@ public class TypeNetProtocol extends BaseNetProtocol<ArrayList<TypeInfo>> {
                         typeInfo.url1 = jo1.getString("url1");
                         typeInfo.url2 = jo1.getString("url2");
                         typeInfo.url3 = jo1.getString("url3");
+                        typeInfo.type1 = jo1.getString("type1");
+                        typeInfo.type2 = jo1.getString("type2");
+                        typeInfo.type3 = jo1.getString("type3");
                         typeInfo.isTitle = false;
 
                         list.add(typeInfo);

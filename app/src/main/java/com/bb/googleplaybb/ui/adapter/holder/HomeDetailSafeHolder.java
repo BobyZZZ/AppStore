@@ -102,7 +102,7 @@ public class HomeDetailSafeHolder extends BaseHolder<AppInfo> {
         });
     }
 
-    private boolean isOpen = false;
+    private boolean isOpen = true;
 
     private void toggle() {
         ValueAnimator valueAnimator = null;

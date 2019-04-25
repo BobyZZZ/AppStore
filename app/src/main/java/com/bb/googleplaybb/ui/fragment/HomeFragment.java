@@ -207,7 +207,6 @@ public class HomeFragment extends BaseFragment {
         @Override
         protected ArrayList<AppInfo> onLoadMore() {
             ArrayList<AppInfo> moreData = mHomeProtocol.getData(data.size());
-//            data.addAll(moreData);
             return moreData;
         }
 

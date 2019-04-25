@@ -95,7 +95,7 @@ public abstract class BaseNetProtocol<T> {
                 json = response.body().string();
                 //缓存数据
                 if(!TextUtils.isEmpty(json))
-                    setCache(json, index);
+                    //setCache(json, index);
                 System.out.println("从网络获取数据结果为：" + json);
             } catch (IOException e) {
                 e.printStackTrace();

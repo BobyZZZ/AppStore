@@ -59,11 +59,10 @@ public class HomeDetailDownloadHolder extends BaseHolder<AppInfo> implements App
 
     @Override
     public void refreshView(AppInfo data) {
-        DownloadInfo downloadInfo = DownloadInfo.copy(data);
-        File file = new File(downloadInfo.getFilePath());
-
-        downloadInfo = mDm.getDownloadInfo(data);
+        DownloadInfo downloadInfo = mDm.getDownloadInfo(data);
         if (downloadInfo == null) {
+            downloadInfo = DownloadInfo.copy(data);
+            File file = new File(downloadInfo.getFilePath());
             if (!file.exists()) {
                 mCurrentState = AppDownloadManager.STATE_UNDO;
                 mProgress = 0;
@@ -132,7 +131,7 @@ public class HomeDetailDownloadHolder extends BaseHolder<AppInfo> implements App
                 public void run() {
                     int state = downloadInfo.mCurrentState;
                     float progress = downloadInfo.getProgress();
-                    System.out.println("progress:"+progress);
+                    System.out.println("progress:" + progress);
                     refreshUI(state, progress);
                 }
             });
@@ -192,7 +191,7 @@ public class HomeDetailDownloadHolder extends BaseHolder<AppInfo> implements App
         // titleUrl QQ和QQ空间跳转链接
         oks.setTitleUrl("http://sharesdk.cn");
         // text是分享文本，所有平台都需要这个字段
-        oks.setText(appInfo.name+"，快来下载这个应用吧");
+        oks.setText(appInfo.name + "，快来下载这个应用吧");
         // imagePath是图片的本地路径，Linked-In以外的平台都支持此参数
         oks.setImagePath("/sdcard/2.jpg");//确保SDcard下面存在此张图片
         // url在微信、微博，Facebook等平台中使用

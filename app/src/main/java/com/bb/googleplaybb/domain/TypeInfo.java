@@ -11,6 +11,9 @@ public class TypeInfo {
     public String url1;
     public String url2;
     public String url3;
+    public String type1;
+    public String type2;
+    public String type3;
 
     public String title;
     public boolean isTitle;

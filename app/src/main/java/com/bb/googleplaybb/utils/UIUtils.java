@@ -1,11 +1,17 @@
 package com.bb.googleplaybb.utils;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Process;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 
 import com.bb.googleplaybb.global.GooglePlayApplication;
 
@@ -14,6 +20,40 @@ import com.bb.googleplaybb.global.GooglePlayApplication;
  */
 
 public class UIUtils {
+
+    public static int getStatusBarHeight(){
+        int result = 0;
+        int resourceId = getContext().getResources().getIdentifier("status_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            result = getContext().getResources().getDimensionPixelSize(resourceId);
+        }
+        return result;
+    }
+
+    public static void setStatusBarTransparent(Activity activity) {
+        ViewGroup contentView = activity.getWindow().findViewById(Window.ID_ANDROID_CONTENT);
+        contentView.getChildAt(0).setFitsSystemWindows(false);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            //5.x开始需要把颜色设置透明，否则导航栏会呈现系统默认的浅灰色
+            View decorView = activity.getWindow().getDecorView();
+            //两个 flag 要结合使用，表示让应用的主体内容占用系统状态栏的空间
+            int option = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                    | View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
+            decorView.setSystemUiVisibility(option);
+
+            activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            activity.getWindow().setStatusBarColor(Color.TRANSPARENT);
+            //导航栏颜色也可以正常设置
+//                window.setNavigationBarColor(Color.TRANSPARENT);
+        } else {
+            WindowManager.LayoutParams attributes = activity.getWindow().getAttributes();
+            int flagTranslucentStatus = WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS;
+            int flagTranslucentNavigation = WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION;
+            attributes.flags |= flagTranslucentStatus;
+//                attributes.flags |= flagTranslucentNavigation;
+            activity.getWindow().setAttributes(attributes);
+        }
+    }
 
     public static Context getContext() {
         return GooglePlayApplication.getContext();

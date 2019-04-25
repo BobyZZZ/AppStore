@@ -26,6 +26,7 @@ public class TopicNetProtocol extends BaseNetProtocol<ArrayList<TopicInfo>> {
                         JSONObject jo = ja.getJSONObject(i);
                         topicInfo.url = jo.getString("url");
                         topicInfo.des = jo.getString("des");
+                        topicInfo.typeUrl = jo.getString("typeUrl");
 
                         list.add(topicInfo);
                     }

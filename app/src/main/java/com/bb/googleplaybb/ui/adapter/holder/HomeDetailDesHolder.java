@@ -2,6 +2,8 @@ package com.bb.googleplaybb.ui.adapter.holder;
 
 import android.animation.Animator;
 import android.animation.ValueAnimator;
+import android.support.design.widget.AppBarLayout;
+import android.support.v4.widget.NestedScrollView;
 import android.view.View;
 import android.view.ViewParent;
 import android.widget.ImageView;
@@ -24,6 +26,11 @@ public class HomeDetailDesHolder extends BaseHolder<AppInfo> {
     private RelativeLayout rlControl;
     private TextView tvName, tvDes;
     private ImageView ivArr;
+    AppBarLayout mAppBarLayout;
+
+    public HomeDetailDesHolder(AppBarLayout appBar) {
+        mAppBarLayout = appBar;
+    }
 
     @Override
     public View initView() {
@@ -50,9 +57,12 @@ public class HomeDetailDesHolder extends BaseHolder<AppInfo> {
         ValueAnimator animator;
         int shortHeight = getShortHeight();
         int longHeight = getLongHeight();
-//        if (shortHeight >= longHeight) {
-//            return;
-//        }
+        if (shortHeight >= longHeight) {
+            isOpen = !isOpen;
+            ivArr.setImageResource(isOpen ? R.drawable.arrow_up : R.drawable.arrow_down);
+            return;
+        }
+
         System.out.println("shortHeight:" + shortHeight);
         System.out.println("longHeight:" + longHeight);
         if (isOpen) {
@@ -77,24 +87,24 @@ public class HomeDetailDesHolder extends BaseHolder<AppInfo> {
         animator.addListener(new Animator.AnimatorListener() {
             @Override
             public void onAnimationStart(Animator animation) {
-                new Thread(){
-                    @Override
-                    public void run() {
-                        super.run();
-                    }
-                }.start();
+                if (!isOpen) {
+                    mAppBarLayout.setExpanded(true);
+                }
             }
+
             @Override
             public void onAnimationEnd(Animator animation) {
                 if (isOpen) {
                     //向上
                     ivArr.setImageResource(R.drawable.arrow_up);
-                    //scrollView滑到底部
-                    ScrollView scrollView = getScrollView();
+//                    //scrollView滑到底部
+                    mAppBarLayout.setExpanded(false);
+                    NestedScrollView scrollView = getScrollView();
                     scrollView.fullScroll(ScrollView.FOCUS_DOWN);
                 } else {
                     //向下
                     ivArr.setImageResource(R.drawable.arrow_down);
+//                    mAppBarLayout.setExpanded(true);
                 }
             }
 
@@ -111,12 +121,12 @@ public class HomeDetailDesHolder extends BaseHolder<AppInfo> {
         animator.start();
     }
 
-    private ScrollView getScrollView() {
+    private NestedScrollView getScrollView() {
         ViewParent parent = tvDes.getParent();
-        while (!(parent instanceof ScrollView)) {
+        while (!(parent instanceof NestedScrollView)) {
             parent = parent.getParent();
         }
-        return (ScrollView) parent;
+        return (NestedScrollView) parent;
     }
 
     @Override

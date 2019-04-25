@@ -4,6 +4,7 @@
     android:layout_height="100dp"
     android:layout_marginLeft="5dp"
     android:layout_marginRight="5dp"
+    android:weightSum="3"
     android:orientation="horizontal">
 
     <LinearLayout

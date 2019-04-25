@@ -53,10 +53,10 @@ public class AppNetProtocol extends BaseNetProtocol<ArrayList<AppInfo>> {
 
     @Override
     public String getKey() {
-        return "app/applist";
+        return "app/gamelist";
     }
 
     public String getCacheName() {
-        return "applist";
+        return "gamelist";
     }
 }
