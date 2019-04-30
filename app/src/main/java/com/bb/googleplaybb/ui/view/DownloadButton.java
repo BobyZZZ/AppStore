@@ -1,5 +1,6 @@
 package com.bb.googleplaybb.ui.view;
 
+import android.app.DownloadManager;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -10,7 +11,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 
 import com.bb.googleplaybb.R;
-import com.bb.googleplaybb.manager.DownloadManager;
+import com.bb.googleplaybb.manager.AppDownloadManager;
 import com.bb.googleplaybb.utils.UIUtils;
 
 /**
@@ -109,22 +110,22 @@ public class DownloadButton extends android.support.v7.widget.AppCompatTextView 
         }
         this.state = state;
         switch (state) {
-            case DownloadManager.STATE_UNDO:
+            case AppDownloadManager.STATE_UNDO:
                 mProgress = "下载";
                 break;
-            case DownloadManager.STATE_PAUSE:
+            case AppDownloadManager.STATE_PAUSE:
                 mProgress = "继续";
                 break;
-            case DownloadManager.STATE_WAITING:
+            case AppDownloadManager.STATE_WAITING:
                 mProgress = "等待";
                 break;
-            case DownloadManager.STATE_DOWNLOADING:
+            case AppDownloadManager.STATE_DOWNLOADING:
                 mProgress = "暂停";
                 break;
-            case DownloadManager.STATE_ERROR:
+            case AppDownloadManager.STATE_ERROR:
                 mProgress = "重试";
                 break;
-            case DownloadManager.STATE_SUCCESS:
+            case AppDownloadManager.STATE_SUCCESS:
                 mProgress = "安装";
                 break;
         }

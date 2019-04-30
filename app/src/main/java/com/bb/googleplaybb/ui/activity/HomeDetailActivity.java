@@ -30,11 +30,9 @@ import com.bb.googleplaybb.R;
 import com.bb.googleplaybb.domain.AppInfo;
 import com.bb.googleplaybb.domain.DownloadInfo;
 import com.bb.googleplaybb.manager.AppDownloadManager;
-import com.bb.googleplaybb.manager.DownloadManager;
 import com.bb.googleplaybb.net.NetHelper;
 import com.bb.googleplaybb.net.protocol.HomeDetailNetProtocol;
 import com.bb.googleplaybb.ui.adapter.holder.HomeDetailDesHolder;
-import com.bb.googleplaybb.ui.adapter.holder.HomeDetailDownloadHolder;
 import com.bb.googleplaybb.ui.adapter.holder.HomeDetailPicHolder;
 import com.bb.googleplaybb.ui.adapter.holder.HomeDetailSafeHolder;
 import com.bb.googleplaybb.ui.view.DownloadButton;
@@ -262,16 +260,26 @@ public class HomeDetailActivity extends AppCompatActivity implements View.OnClic
 
         mDownloadManager.registeredObserver(new AppDownloadManager.DownloadObserver() {
             @Override
-            public void notifyDownloadStateChange(DownloadInfo downloadInfo) {
+            public void notifyDownloadStateChange(final DownloadInfo downloadInfo) {
                 if (appinfo.id.equals(downloadInfo.id)) {
-                    mVDownload.setState(downloadInfo.mCurrentState);
+                    UIUtils.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mVDownload.setState(downloadInfo.mCurrentState);
+                        }
+                    });
                 }
             }
 
             @Override
-            public void notifyDownloadProgressChange(DownloadInfo downloadInfo) {
+            public void notifyDownloadProgressChange(final DownloadInfo downloadInfo) {
                 if (appinfo.id.equals(downloadInfo.id)) {
-                    mVDownload.setProgress(downloadInfo.getProgress());
+                    UIUtils.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mVDownload.setProgress(downloadInfo.getProgress());
+                        }
+                    });
                 }
             }
         });

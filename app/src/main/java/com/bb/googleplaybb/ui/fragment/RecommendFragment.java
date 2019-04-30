@@ -36,7 +36,7 @@ public class RecommendFragment extends BaseFragment {
     @Override
     public View onCreateSuccessView() {
         StellarMap stellarMap = new StellarMap(UIUtils.getContext());
-        stellarMap.setRegularity(9, 6);//设置规则，9行6列
+        stellarMap.setRegularity(8, 6);//设置规则，9行6列
         int padding = UIUtils.dip2px(10);
         stellarMap.setInnerPadding(padding,padding,padding,padding);
         stellarMap.setAdapter(new RecommendAdapter());

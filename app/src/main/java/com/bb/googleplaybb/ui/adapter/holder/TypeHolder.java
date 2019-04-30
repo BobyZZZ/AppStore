@@ -9,7 +9,6 @@ import android.widget.Toast;
 
 import com.bb.googleplaybb.R;
 import com.bb.googleplaybb.domain.TypeInfo;
-import com.bb.googleplaybb.http.HttpHelper;
 import com.bb.googleplaybb.net.NetHelper;
 import com.bb.googleplaybb.ui.activity.AppOfTypeActivity;
 import com.bb.googleplaybb.utils.BitmapHelper;

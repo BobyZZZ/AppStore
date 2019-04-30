@@ -1,7 +1,6 @@
 package com.bb.googleplaybb.net.protocol;
 
 import com.bb.googleplaybb.domain.AppInfo;
-import com.bb.googleplaybb.http.protocol.BaseProtocol;
 import com.bb.googleplaybb.utils.StringUtils;
 
 import org.json.JSONArray;

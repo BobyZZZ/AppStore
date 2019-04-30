@@ -9,7 +9,6 @@ import android.widget.TextView;
 
 import com.bb.googleplaybb.R;
 import com.bb.googleplaybb.domain.AppInfo;
-import com.bb.googleplaybb.http.HttpHelper;
 import com.bb.googleplaybb.net.NetHelper;
 import com.bb.googleplaybb.ui.view.ProgressArc;
 import com.bb.googleplaybb.utils.BitmapHelper;

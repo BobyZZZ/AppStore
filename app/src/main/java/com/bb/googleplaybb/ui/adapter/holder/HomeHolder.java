@@ -1,6 +1,8 @@
 package com.bb.googleplaybb.ui.adapter.holder;
 
+import android.app.DownloadManager;
 import android.text.format.Formatter;
+import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -11,7 +13,6 @@ import com.bb.googleplaybb.R;
 import com.bb.googleplaybb.domain.AppInfo;
 import com.bb.googleplaybb.domain.DownloadInfo;
 import com.bb.googleplaybb.manager.AppDownloadManager;
-import com.bb.googleplaybb.manager.DownloadManager;
 import com.bb.googleplaybb.net.NetHelper;
 import com.bb.googleplaybb.ui.view.ProgressArc;
 import com.bb.googleplaybb.utils.BitmapHelper;
@@ -20,9 +21,6 @@ import com.lidroid.xutils.BitmapUtils;
 
 import java.io.File;
 
-/**
- * Created by Boby on 2018/7/13.
- */
 
 public class HomeHolder extends BaseHolder<AppInfo> implements AppDownloadManager.DownloadObserver, View.OnClickListener {
     private TextView tvName, tvSize, tvDes;
@@ -79,19 +77,21 @@ public class HomeHolder extends BaseHolder<AppInfo> implements AppDownloadManage
 
         utils.display(ivIcon, NetHelper.URL + data.iconUrl);
 
-        DownloadInfo downloadInfo = DownloadInfo.copy(data);
-        File file = new File(downloadInfo.getFilePath());
-
-        downloadInfo = mDm.getDownloadInfo(data);
+        DownloadInfo downloadInfo = mDm.getDownloadInfo(data);
         if (downloadInfo == null) {
+            downloadInfo = DownloadInfo.copy(data);
+            Log.i("zyc", "refreshView: a" + downloadInfo);
+            String path = downloadInfo.getFilePath();
+            Log.i("zyc", "refreshView: b");
+            File file = new File(path);
             if (!file.exists()) {
-                mCurrentState = DownloadManager.STATE_UNDO;
+                mCurrentState = AppDownloadManager.STATE_UNDO;
                 mProgress = 0;
             } else if (file.length() == data.size) {
-                mCurrentState = DownloadManager.STATE_SUCCESS;
+                mCurrentState = AppDownloadManager.STATE_SUCCESS;
                 mProgress = 1;
             } else {
-                mCurrentState = DownloadManager.STATE_PAUSE;
+                mCurrentState = AppDownloadManager.STATE_PAUSE;
                 mProgress = file.length() / (float) data.size;
             }
         } else {
@@ -111,35 +111,35 @@ public class HomeHolder extends BaseHolder<AppInfo> implements AppDownloadManage
         mCurrentState = state;
         mProgress = progress;
         switch (state) {
-            case DownloadManager.STATE_UNDO:
+            case AppDownloadManager.STATE_UNDO:
                 mProgressArc.setBackgroundResource(R.drawable.ic_download);
                 mProgressArc.setStyle(ProgressArc.PROGRESS_STYLE_NO_PROGRESS);
                 tvDownload.setText("下载");
                 break;
-            case DownloadManager.STATE_PAUSE:
+            case AppDownloadManager.STATE_PAUSE:
                 mProgressArc.setBackgroundResource(R.drawable.ic_resume);
                 mProgressArc.setStyle(ProgressArc.PROGRESS_STYLE_NO_PROGRESS);
                 mProgressArc.setProgress(progress, false);
                 tvDownload.setText("暂停");
                 System.out.println("暂停..........");
                 break;
-            case DownloadManager.STATE_WAITING:
+            case AppDownloadManager.STATE_WAITING:
                 mProgressArc.setBackgroundResource(R.drawable.ic_download);
                 mProgressArc.setStyle(ProgressArc.PROGRESS_STYLE_WAITING);
                 tvDownload.setText("等待中");
                 break;
-            case DownloadManager.STATE_DOWNLOADING:
+            case AppDownloadManager.STATE_DOWNLOADING:
                 mProgressArc.setBackgroundResource(R.drawable.ic_pause);
                 mProgressArc.setStyle(ProgressArc.PROGRESS_STYLE_DOWNLOADING);
                 mProgressArc.setProgress(progress, false);
                 tvDownload.setText((int) (progress * 100) + "%");
                 break;
-            case DownloadManager.STATE_SUCCESS:
+            case AppDownloadManager.STATE_SUCCESS:
                 mProgressArc.setBackgroundResource(R.drawable.ic_install);
                 mProgressArc.setStyle(ProgressArc.PROGRESS_STYLE_NO_PROGRESS);
                 tvDownload.setText("安装");
                 break;
-            case DownloadManager.STATE_ERROR:
+            case AppDownloadManager.STATE_ERROR:
                 mProgressArc.setBackgroundResource(R.drawable.ic_redownload);
                 mProgressArc.setStyle(ProgressArc.PROGRESS_STYLE_NO_PROGRESS);
                 tvDownload.setText("下载失败");
@@ -177,9 +177,9 @@ public class HomeHolder extends BaseHolder<AppInfo> implements AppDownloadManage
     @Override
     public void onClick(View v) {
 //        downloadInfo = mDm.getDownloadInfo(getData());
-//        if (downloadInfo == null || downloadInfo.mCurrentState == DownloadManager.STATE_PAUSE || downloadInfo.mCurrentState == DownloadManager.STATE_ERROR) {
+//        if (downloadInfo == null || downloadInfo.mCurrentState == AppDownloadManager.STATE_PAUSE || downloadInfo.mCurrentState == AppDownloadManager.STATE_ERROR) {
 //            mDm.download(getData());
-//        } else if (downloadInfo.mCurrentState == DownloadManager.STATE_DOWNLOADING || downloadInfo.mCurrentState == DownloadManager.STATE_WAITING) {
+//        } else if (downloadInfo.mCurrentState == AppDownloadManager.STATE_DOWNLOADING || downloadInfo.mCurrentState == AppDownloadManager.STATE_WAITING) {
 //            mDm.pause(getData());
 //        } else {
 //            mDm.install(getData());
@@ -188,11 +188,11 @@ public class HomeHolder extends BaseHolder<AppInfo> implements AppDownloadManage
         switch (v.getId()) {
 //            case R.id.btn_download:
             case R.id.fl_progress:
-                if (mCurrentState == DownloadManager.STATE_UNDO || mCurrentState == DownloadManager.STATE_PAUSE || mCurrentState == DownloadManager.STATE_ERROR) {
+                if (mCurrentState == AppDownloadManager.STATE_UNDO || mCurrentState == AppDownloadManager.STATE_PAUSE || mCurrentState == AppDownloadManager.STATE_ERROR) {
                     mDm.download(data);
-                } else if (mCurrentState == DownloadManager.STATE_DOWNLOADING || mCurrentState == DownloadManager.STATE_WAITING) {
+                } else if (mCurrentState == AppDownloadManager.STATE_DOWNLOADING || mCurrentState == AppDownloadManager.STATE_WAITING) {
                     mDm.pause(data);
-                } else if (mCurrentState == DownloadManager.STATE_SUCCESS) {
+                } else if (mCurrentState == AppDownloadManager.STATE_SUCCESS) {
                     mDm.install(data);
                 }
                 break;

@@ -4,28 +4,11 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-
-import com.bb.googleplaybb.manager.DownloadManager;
 import com.bb.googleplaybb.manager.ThreadManager;
 import com.bb.googleplaybb.ui.adapter.holder.BaseHolder;
 import com.bb.googleplaybb.ui.adapter.holder.MoreHolder;
-import com.bb.googleplaybb.ui.view.LoadingPage;
 import com.bb.googleplaybb.utils.UIUtils;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
-
-/**
- * Created by Boby on 2018/7/13.
- */
 
 public abstract class MyBaseAdapter<T> extends BaseAdapter {
 

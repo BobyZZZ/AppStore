@@ -150,7 +150,7 @@ public class HomeFragment extends BaseFragment {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                System.out.println("onItemClick:"+position);
+                System.out.println("onItemClick:" + position);
                 AppInfo appInfo = data.get(position - 1);//减去头布局
                 //打开详情页面
                 Intent intent = new Intent(UIUtils.getContext(), HomeDetailActivity.class);

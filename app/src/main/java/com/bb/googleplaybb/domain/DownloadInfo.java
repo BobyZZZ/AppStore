@@ -1,8 +1,10 @@
 package com.bb.googleplaybb.domain;
 
+import android.app.DownloadManager;
 import android.os.Environment;
 
-import com.bb.googleplaybb.manager.DownloadManager;
+
+import com.bb.googleplaybb.manager.AppDownloadManager;
 
 import java.io.File;
 
@@ -29,7 +31,7 @@ public class DownloadInfo {
         downloadInfo.downloadUrl = info.downloadUrl;
         downloadInfo.size = info.size;
 
-        downloadInfo.mCurrentState = DownloadManager.STATE_UNDO;
+        downloadInfo.mCurrentState = AppDownloadManager.STATE_UNDO;
         downloadInfo.mCurrentPosition = 0;
         downloadInfo.path = downloadInfo.getFilePath();
 

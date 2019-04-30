@@ -175,7 +175,6 @@ public class AppDownloadManager {
                         out.write(buffer, 0, len);
                         downloadInfo.mCurrentPosition += len;
                         notifyDownloadProgressChange(downloadInfo);
-//                        Thread.sleep(5);
                     }
                     out.flush();
                     //走到此处情况可能为：下载完成、下载被暂停了、下载失败
@@ -193,7 +192,7 @@ public class AppDownloadManager {
                     }
                 }
             } catch (IOException e) {
-                e.printStackTrace();//3700647701924
+                e.printStackTrace();
             } finally {
                 if (response != null) {
                     response.body().close();
