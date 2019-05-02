@@ -1,28 +1,83 @@
 package com.bb.googleplaybb.domain;
 
-import android.app.DownloadManager;
 import android.os.Environment;
+import android.util.Log;
 
-
+import com.bb.googleplaybb.manager.AppDownloadManager.DownloadTask.ThreadInfo;
 import com.bb.googleplaybb.manager.AppDownloadManager;
+import com.bb.googleplaybb.manager.DBUtils;
 
 import java.io.File;
+import java.util.ArrayList;
+
+import static com.bb.googleplaybb.manager.AppDownloadManager.DownloadTask.THREADCOUNT;
 
 /**
  * Created by Boby on 2018/7/18.
  */
 
 public class DownloadInfo {
-    public String id;
-    public String name;
-    public String downloadUrl;
-    public long size;
-    public int mCurrentState;
-    public long mCurrentPosition;
-    public String path;
+    public String id;//应用id
+    public String name;//应用名称
+    public String downloadUrl;//安装包下载url
+    public long size;//安装包大小
+    public int mCurrentState;//下载状态
+    public long mDownloadedSize;//已下载大小
+    public String path;//安装包本地路径
+    public int mFinishedCount;//已完成的线程数量
 
     private String GOOGLEPLAY = "GooglePlayBB";//存放在sd卡的文件夹
-    private String DOWNLOAD = "download";
+    private String DOWNLOAD = "start";
+    public ArrayList<ThreadInfo> mThreads;
+    private long sum;
+    private final String TAG = "zycDownloadInfo";
+
+    public boolean isThreadsEmpty() {
+        return mThreads == null || mThreads.isEmpty();
+    }
+
+    public void removeThread(ThreadInfo threadInfo) {
+        mThreads.remove(threadInfo);
+    }
+    /**
+     * 把数据库查找出来的数据放到集合中
+     * @param threadInfos
+     */
+    public void addThreads(ArrayList<ThreadInfo> threadInfos) {
+        if (threadInfos != null && !threadInfos.isEmpty()) {
+            mThreads = new ArrayList<>();
+            for (ThreadInfo info : threadInfos) {
+                info.setDownloadInfo(this);
+                mThreads.add(info);
+            }
+        }
+    }
+
+    public ArrayList<ThreadInfo> getThreadList() {
+        ArrayList<ThreadInfo> list = new ArrayList<>();
+        long boundSize = size / THREADCOUNT;//每一块的大小
+        for (int i = 0; i < THREADCOUNT; i++) {
+            AppDownloadManager.DownloadTask.ThreadInfo threadInfo;
+            if (i == THREADCOUNT - 1) {
+                //最后一个
+                long lastSize = boundSize + size % THREADCOUNT;
+                sum += lastSize;
+                threadInfo = new ThreadInfo(id, lastSize, i * boundSize, size - 1, 0);
+            } else {
+                threadInfo = new ThreadInfo(id, boundSize, i * boundSize, (i + 1) * boundSize - 1, 0);
+                sum += boundSize;
+            }
+            threadInfo.setDownloadInfo(DownloadInfo.this);
+            list.add(threadInfo);
+        }
+        return list;
+    }
+
+    public void initThread() {
+        mThreads = getThreadList();
+        Log.e(TAG, "downloadInfo.size : " + size);
+        Log.e(TAG, "sum: " + sum);
+    }
 
     public static DownloadInfo copy(AppInfo info) {
         DownloadInfo downloadInfo = new DownloadInfo();
@@ -32,7 +87,7 @@ public class DownloadInfo {
         downloadInfo.size = info.size;
 
         downloadInfo.mCurrentState = AppDownloadManager.STATE_UNDO;
-        downloadInfo.mCurrentPosition = 0;
+        downloadInfo.mDownloadedSize = 0;
         downloadInfo.path = downloadInfo.getFilePath();
 
 
@@ -41,10 +96,9 @@ public class DownloadInfo {
 
     public float getProgress() {
         if (size != 0) {
-            return mCurrentPosition / (float) size;
+            return mDownloadedSize / (float) size;
         }
         return 0;
-//        return mCurrentPosition / size;
     }
 
     public String getFilePath() {
@@ -69,4 +123,6 @@ public class DownloadInfo {
         }
         return true;
     }
+
+
 }

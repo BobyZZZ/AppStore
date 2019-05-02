@@ -1,6 +1,5 @@
 package com.bb.googleplaybb.ui.view;
 
-import android.app.DownloadManager;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -8,7 +7,6 @@ import android.graphics.Paint;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
-import android.util.Log;
 
 import com.bb.googleplaybb.R;
 import com.bb.googleplaybb.manager.AppDownloadManager;
@@ -91,12 +89,13 @@ public class DownloadButton extends android.support.v7.widget.AppCompatTextView 
 
     private float progress;
     private int state;
+
     public void setProgress(float progress) {
         if (this.progress == progress) {
             return;
         }
-        this.progress = progress;
-        mRect.right = mRect.left + progress * mWidth;
+        this.progress = progress >= 1 ? 0 : progress;
+        mRect.right = mRect.left + this.progress * mWidth;
         invalidate();
     }
 
@@ -127,6 +126,7 @@ public class DownloadButton extends android.support.v7.widget.AppCompatTextView 
                 break;
             case AppDownloadManager.STATE_SUCCESS:
                 mProgress = "安装";
+                mRect.right = mRect.left;
                 break;
         }
         invalidate();

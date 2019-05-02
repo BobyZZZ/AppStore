@@ -7,29 +7,24 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.format.Formatter;
-import android.util.Log;
-import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.RatingBar;
-import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bb.googleplaybb.R;
 import com.bb.googleplaybb.domain.AppInfo;
 import com.bb.googleplaybb.domain.DownloadInfo;
 import com.bb.googleplaybb.manager.AppDownloadManager;
+import com.bb.googleplaybb.manager.DBUtils;
 import com.bb.googleplaybb.net.NetHelper;
 import com.bb.googleplaybb.net.protocol.HomeDetailNetProtocol;
 import com.bb.googleplaybb.ui.adapter.holder.HomeDetailDesHolder;
@@ -234,27 +229,36 @@ public class HomeDetailActivity extends AppCompatActivity implements View.OnClic
         vShare.setOnClickListener(this);
 
         DownloadInfo downloadInfo = mDownloadManager.getDownloadInfo(appinfo);
-        int mCurrentState;
-        float mProgress;
+        final int mCurrentState;
+        final float mProgress;
         if (downloadInfo == null) {
             downloadInfo = DownloadInfo.copy(appinfo);
-            File file = new File(downloadInfo.getFilePath());
-            if (!file.exists()) {
+            long downloadedSize = AppDownloadManager.getDownloadedSize(downloadInfo);
+            if (downloadedSize == 0) {
                 mCurrentState = AppDownloadManager.STATE_UNDO;
                 mProgress = 0;
-            } else if (file.length() == appinfo.size) {
+            } else if (downloadedSize == appinfo.size) {
                 mCurrentState = AppDownloadManager.STATE_SUCCESS;
-                mProgress = 1;
+                mProgress = 0;
+            } else if (downloadedSize > appinfo.size) {
+                mCurrentState = AppDownloadManager.STATE_ERROR;
+                mProgress = 0;
+                DBUtils.getInstance().deleteThreadInfo(appinfo.id);
             } else {
                 mCurrentState = AppDownloadManager.STATE_PAUSE;
-                mProgress = file.length() / (float) appinfo.size;
+                mProgress = downloadedSize / (float) appinfo.size;
             }
         } else {
             mCurrentState = downloadInfo.mCurrentState;
             mProgress = downloadInfo.getProgress();
         }
-        mVDownload.setState(mCurrentState);
-        mVDownload.setProgress(mProgress);
+        mVDownload.post(new Runnable() {
+            @Override
+            public void run() {
+                mVDownload.setProgress(mProgress);
+                mVDownload.setState(mCurrentState);
+            }
+        });
 
         mVDownload.setOnClickListener(this);
 

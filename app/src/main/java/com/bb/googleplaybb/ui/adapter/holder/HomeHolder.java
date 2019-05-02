@@ -13,6 +13,7 @@ import com.bb.googleplaybb.R;
 import com.bb.googleplaybb.domain.AppInfo;
 import com.bb.googleplaybb.domain.DownloadInfo;
 import com.bb.googleplaybb.manager.AppDownloadManager;
+import com.bb.googleplaybb.manager.DBUtils;
 import com.bb.googleplaybb.net.NetHelper;
 import com.bb.googleplaybb.ui.view.ProgressArc;
 import com.bb.googleplaybb.utils.BitmapHelper;
@@ -80,19 +81,20 @@ public class HomeHolder extends BaseHolder<AppInfo> implements AppDownloadManage
         DownloadInfo downloadInfo = mDm.getDownloadInfo(data);
         if (downloadInfo == null) {
             downloadInfo = DownloadInfo.copy(data);
-            Log.i("zyc", "refreshView: a" + downloadInfo);
-            String path = downloadInfo.getFilePath();
-            Log.i("zyc", "refreshView: b");
-            File file = new File(path);
-            if (!file.exists()) {
+            long downloadedSize = AppDownloadManager.getDownloadedSize(downloadInfo);
+            if (downloadedSize == 0) {
                 mCurrentState = AppDownloadManager.STATE_UNDO;
                 mProgress = 0;
-            } else if (file.length() == data.size) {
+            } else if (downloadedSize == data.size) {
                 mCurrentState = AppDownloadManager.STATE_SUCCESS;
-                mProgress = 1;
+                mProgress = 0;
+            }  else if (downloadedSize > data.size) {
+                mCurrentState = AppDownloadManager.STATE_ERROR;
+                mProgress = 0;
+                DBUtils.getInstance().deleteThreadInfo(data.id);
             } else {
                 mCurrentState = AppDownloadManager.STATE_PAUSE;
-                mProgress = file.length() / (float) data.size;
+                mProgress = downloadedSize / (float) data.size;
             }
         } else {
             mCurrentState = downloadInfo.mCurrentState;
@@ -103,10 +105,10 @@ public class HomeHolder extends BaseHolder<AppInfo> implements AppDownloadManage
     }
 
     private void refreshUI(int state, float progress, String id) {
-        //由于listview的重用机制，刷新之前要确保是同一个应用
-//        if (!getData().id.equals(id)) {
-//            return;
-//        }
+//        由于listview的重用机制，刷新之前要确保是同一个应用
+        if (!getData().id.equals(id)) {
+            return;
+        }
         System.out.println("refreshUI：   state:" + state + ";progress:" + progress);
         mCurrentState = state;
         mProgress = progress;
@@ -126,7 +128,7 @@ public class HomeHolder extends BaseHolder<AppInfo> implements AppDownloadManage
             case AppDownloadManager.STATE_WAITING:
                 mProgressArc.setBackgroundResource(R.drawable.ic_download);
                 mProgressArc.setStyle(ProgressArc.PROGRESS_STYLE_WAITING);
-                tvDownload.setText("等待中");
+                tvDownload.setText("等待");
                 break;
             case AppDownloadManager.STATE_DOWNLOADING:
                 mProgressArc.setBackgroundResource(R.drawable.ic_pause);
@@ -142,7 +144,7 @@ public class HomeHolder extends BaseHolder<AppInfo> implements AppDownloadManage
             case AppDownloadManager.STATE_ERROR:
                 mProgressArc.setBackgroundResource(R.drawable.ic_redownload);
                 mProgressArc.setStyle(ProgressArc.PROGRESS_STYLE_NO_PROGRESS);
-                tvDownload.setText("下载失败");
+                tvDownload.setText("失败");
                 break;
         }
     }
@@ -178,7 +180,7 @@ public class HomeHolder extends BaseHolder<AppInfo> implements AppDownloadManage
     public void onClick(View v) {
 //        downloadInfo = mDm.getDownloadInfo(getData());
 //        if (downloadInfo == null || downloadInfo.mCurrentState == AppDownloadManager.STATE_PAUSE || downloadInfo.mCurrentState == AppDownloadManager.STATE_ERROR) {
-//            mDm.download(getData());
+//            mDm.start(getData());
 //        } else if (downloadInfo.mCurrentState == AppDownloadManager.STATE_DOWNLOADING || downloadInfo.mCurrentState == AppDownloadManager.STATE_WAITING) {
 //            mDm.pause(getData());
 //        } else {

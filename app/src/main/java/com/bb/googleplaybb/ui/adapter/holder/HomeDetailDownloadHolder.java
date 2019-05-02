@@ -156,7 +156,7 @@ public class HomeDetailDownloadHolder extends BaseHolder<AppInfo> implements App
     public void onClick(View v) {
 //        downloadInfo = mDm.getDownloadInfo(getData());
 //        if (downloadInfo == null || downloadInfo.mCurrentState == DownloadManager.STATE_PAUSE || downloadInfo.mCurrentState == DownloadManager.STATE_ERROR) {
-//            mDm.download(getData());
+//            mDm.start(getData());
 //        } else if (downloadInfo.mCurrentState == DownloadManager.STATE_DOWNLOADING || downloadInfo.mCurrentState == DownloadManager.STATE_WAITING) {
 //            mDm.pause(getData());
 //        } else {
