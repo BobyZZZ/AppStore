@@ -1,8 +1,6 @@
 package com.bb.googleplaybb.ui.adapter.holder;
 
-import android.app.DownloadManager;
 import android.text.format.Formatter;
-import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -19,9 +17,6 @@ import com.bb.googleplaybb.ui.view.ProgressArc;
 import com.bb.googleplaybb.utils.BitmapHelper;
 import com.bb.googleplaybb.utils.UIUtils;
 import com.lidroid.xutils.BitmapUtils;
-
-import java.io.File;
-
 
 public class HomeHolder extends BaseHolder<AppInfo> implements AppDownloadManager.DownloadObserver, View.OnClickListener {
     private TextView tvName, tvSize, tvDes;
@@ -105,11 +100,9 @@ public class HomeHolder extends BaseHolder<AppInfo> implements AppDownloadManage
     }
 
     private void refreshUI(int state, float progress, String id) {
-//        由于listview的重用机制，刷新之前要确保是同一个应用
         if (!getData().id.equals(id)) {
             return;
         }
-        System.out.println("refreshUI：   state:" + state + ";progress:" + progress);
         mCurrentState = state;
         mProgress = progress;
         switch (state) {
@@ -122,8 +115,7 @@ public class HomeHolder extends BaseHolder<AppInfo> implements AppDownloadManage
                 mProgressArc.setBackgroundResource(R.drawable.ic_resume);
                 mProgressArc.setStyle(ProgressArc.PROGRESS_STYLE_NO_PROGRESS);
                 mProgressArc.setProgress(progress, false);
-                tvDownload.setText("暂停");
-                System.out.println("暂停..........");
+                tvDownload.setText("继续");
                 break;
             case AppDownloadManager.STATE_WAITING:
                 mProgressArc.setBackgroundResource(R.drawable.ic_download);

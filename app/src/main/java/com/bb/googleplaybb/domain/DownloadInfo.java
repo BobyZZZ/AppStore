@@ -5,7 +5,6 @@ import android.util.Log;
 
 import com.bb.googleplaybb.manager.AppDownloadManager.DownloadTask.ThreadInfo;
 import com.bb.googleplaybb.manager.AppDownloadManager;
-import com.bb.googleplaybb.manager.DBUtils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -27,7 +26,7 @@ public class DownloadInfo {
     public int mFinishedCount;//已完成的线程数量
 
     private String GOOGLEPLAY = "GooglePlayBB";//存放在sd卡的文件夹
-    private String DOWNLOAD = "start";
+    private String DOWNLOAD = "download";
     public ArrayList<ThreadInfo> mThreads;
     private long sum;
     private final String TAG = "zycDownloadInfo";

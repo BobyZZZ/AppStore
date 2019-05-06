@@ -9,6 +9,7 @@
         android:id="@+id/appBar"
         android:layout_width="match_parent"
         android:layout_height="200dp"
+        android:visibility="invisible"
         android:fitsSystemWindows="true">
 
         <android.support.design.widget.CollapsingToolbarLayout
@@ -18,14 +19,6 @@
             app:contentScrim="#00ffff"
             android:fitsSystemWindows="true"
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
-
-            <!--<ImageView-->
-            <!--android:id="@+id/bar_background"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="match_parent"-->
-            <!--android:background="#d300ffff"-->
-            <!--android:fitsSystemWindows="true"-->
-            <!--/>-->
 
             <include layout="@layout/layout_home_detail_appinfo" />
 

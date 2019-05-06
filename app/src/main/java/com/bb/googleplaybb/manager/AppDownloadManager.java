@@ -113,7 +113,7 @@ public class AppDownloadManager {
                     }
                 }
             }
-            Log.e("zyc", "mDownloadedSize: " + downloadedSize);
+            Log.e("zyc", "fileDownloadedSize: " + downloadedSize);
         }
         return downloadedSize;
     }
@@ -181,6 +181,8 @@ public class AppDownloadManager {
             @Override
             public void run() {
                 //开始下载
+                long totalTime = System.currentTimeMillis();
+                DBUtils dbUtils = DBUtils.getInstance();
                 if (mDownloadInfo.mCurrentState != STATE_DOWNLOADING) {
                     mDownloadInfo.mCurrentState = STATE_DOWNLOADING;
                     downloadManager.notifyDownloadStateChange(mDownloadInfo);
@@ -198,32 +200,48 @@ public class AppDownloadManager {
                         randomAccessFile.seek(start);
                         int len = -1;
                         byte[] buffer = new byte[2048];
+                        String TAG = "time";
+                        //每300ms更新一次数据库断点记录
+                        long timeRecord = System.currentTimeMillis();
                         while ((len = in.read(buffer)) != -1 && mDownloadInfo.mCurrentState == STATE_DOWNLOADING) {
+                            long oneTime = System.currentTimeMillis();
                             randomAccessFile.write(buffer, 0, len);
                             mDownloadInfo.mDownloadedSize += len;
                             mFinished += len;
+
+                            long updateThreadInfoTime = System.currentTimeMillis();
+                            if (updateThreadInfoTime - timeRecord >= 300) {
+                                dbUtils.updateThreadInfo(threadId, mFinished);
+                                timeRecord = updateThreadInfoTime;
+                                Log.e(TAG, "updateThreadInfoTime:"  + (System.currentTimeMillis() - updateThreadInfoTime));
+                            }
+
+                            Log.e(TAG, "oneTime:"  + (System.currentTimeMillis() - oneTime));
                             downloadManager.notifyDownloadProgressChange(mDownloadInfo);
                         }
                         if (mFinished == size) {
                             //单个下载成功，从数据库中删除记录
-                            DBUtils.getInstance().deleteThreadInfo(threadId);
+                            dbUtils.deleteThreadInfo(threadId);
                             mDownloadInfo.mFinishedCount++;
                             mDownloadInfo.removeThread(this);
-//                            mDownloadInfo.mThreads.remove(this);
                         }
 
                         Log.e(TAG, "id:" + mDownloadInfo.id + "---mFinishedCount: " + mDownloadInfo.mFinishedCount + "---" + file.length());
                         if (mDownloadInfo.mFinishedCount == THREADCOUNT && file.length() == mDownloadInfo.size) {
                             //下载成功
+                            Log.e(TAG, "totalTime: " +(System.currentTimeMillis() - totalTime));
                             mDownloadInfo.mCurrentState = STATE_SUCCESS;
                             downloadManager.notifyDownloadStateChange(mDownloadInfo);
+                            dbUtils.deleteThreadInfoById(id);
                         } else if (mDownloadInfo.mCurrentState == STATE_PAUSE) {
                             //更新数据库中记录
-                            DBUtils.getInstance().updateThreadInfo(threadId, mFinished);
                             downloadManager.notifyDownloadStateChange(mDownloadInfo);
                         } else if (mDownloadInfo.mCurrentState != STATE_DOWNLOADING) {
-                            //下载失败,
-                            DBUtils.getInstance().deleteThreadInfoById(id);
+                            //下载失败,删除记录，删除文件
+                            if (file.exists()) {
+                                file.delete();
+                            }
+                            dbUtils.deleteThreadInfoById(id);
                             downloadManager.mDownloadTaskMap.remove(mDownloadInfo.id);
 
                             mDownloadInfo.mCurrentState = STATE_ERROR;

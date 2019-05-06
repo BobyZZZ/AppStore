@@ -12,8 +12,10 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.format.Formatter;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
@@ -66,6 +68,7 @@ public class HomeDetailActivity extends AppCompatActivity implements View.OnClic
 
     public static void startHomeDetailActivity(Context context, String packageName, String appName) {
         Intent intent = new Intent(context, HomeDetailActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.putExtra(PACKAGENAME, packageName);
         intent.putExtra(APPNAME, appName);
         context.startActivity(intent);
@@ -93,7 +96,6 @@ public class HomeDetailActivity extends AppCompatActivity implements View.OnClic
         mLoadingPage.loadData();
         flContainer.addView(mLoadingPage);
         initToolBar();
-//        setContentView(mLoadingPage);
     }
 
 //    private void initAppBar() {
@@ -175,6 +177,7 @@ public class HomeDetailActivity extends AppCompatActivity implements View.OnClic
         //初始化app信息模块
         initAppInfo();
         initDownloadAndShare(rootView);
+        mAppBar.setVisibility(View.VISIBLE);
 
         //初始化安全模块
         FrameLayout flSafeView = rootView.findViewById(R.id.fl_safe);

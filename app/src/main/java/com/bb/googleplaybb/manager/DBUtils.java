@@ -6,17 +6,13 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
-
 import com.bb.googleplaybb.manager.AppDownloadManager.DownloadTask.ThreadInfo;
-
 import com.bb.googleplaybb.utils.UIUtils;
-
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class DBUtils {
-    private DataBaseOpenHelper dao = new DataBaseOpenHelper(UIUtils.getContext());
+    private DBHelper dao = new DBHelper(UIUtils.getContext());
     private static DBUtils dbUtils;
 
     private DBUtils() {
@@ -37,94 +33,74 @@ public class DBUtils {
         SQLiteDatabase writableDatabase = dao.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put("id", threadInfo.id);
-        contentValues.put(DataBaseOpenHelper.SIZE, threadInfo.size);
-        contentValues.put(DataBaseOpenHelper.THREADID, threadInfo.threadId);
-        contentValues.put(DataBaseOpenHelper.START, threadInfo.startIndex);
-        contentValues.put(DataBaseOpenHelper.END, threadInfo.endIndex);
-        contentValues.put(DataBaseOpenHelper.FINISH, threadInfo.mFinished);
+        contentValues.put(DBHelper.SIZE, threadInfo.size);
+        contentValues.put(DBHelper.THREADID, threadInfo.threadId);
+        contentValues.put(DBHelper.START, threadInfo.startIndex);
+        contentValues.put(DBHelper.END, threadInfo.endIndex);
+        contentValues.put(DBHelper.FINISH, threadInfo.mFinished);
         long insert;
-        synchronized (DBUtils.class) {
-            insert = writableDatabase.insert(DataBaseOpenHelper.TABLENAME, null, contentValues);
-        }
+        insert = writableDatabase.insert(DBHelper.TABLENAME, null, contentValues);
         Log.e("zyc", "addThreadInfo: " + threadInfo.threadId + "---" + insert);
-//        writableDatabase.close();
     }
 
     public void deleteThreadInfo(String threadId) {
-        SQLiteDatabase writableDatabase = dao.getWritableDatabase();
         long insert;
-        synchronized (DBUtils.class) {
-            insert = writableDatabase.delete(DataBaseOpenHelper.TABLENAME, DataBaseOpenHelper.THREADID + " = ?", new String[]{threadId});
-        }
+        SQLiteDatabase writableDatabase = dao.getWritableDatabase();
+        insert = writableDatabase.delete(DBHelper.TABLENAME, DBHelper.THREADID + " = ?", new String[]{threadId});
         Log.e("zyc", "deleteThreadInfo: " + threadId + "---" + insert);
-//        writableDatabase.close();
     }
 
     public void deleteThreadInfoById(String id) {
-        SQLiteDatabase writableDatabase = dao.getWritableDatabase();
         int delete;
-        synchronized (DBUtils.class) {
-            delete = writableDatabase.delete(DataBaseOpenHelper.TABLENAME, "id = ?", new String[]{id});
-        }
+        SQLiteDatabase writableDatabase = dao.getWritableDatabase();
+        delete = writableDatabase.delete(DBHelper.TABLENAME, "id = ?", new String[]{id});
         Log.e("zyc", "deleteThreadInfoById: " + id + "---" + delete);
-//        writableDatabase.close();
     }
 
     public void updateThreadInfo(String threadId, long finished) {
-        SQLiteDatabase writableDatabase = dao.getWritableDatabase();
         ContentValues values = new ContentValues();
-        values.put(DataBaseOpenHelper.FINISH,finished);
+        values.put(DBHelper.FINISH, finished);
         int update;
-        synchronized (DBUtils.class) {
-            update = writableDatabase.update(DataBaseOpenHelper.TABLENAME, values, DataBaseOpenHelper.THREADID + " = ?", new String[]{threadId});
-        }
-        Log.e("zyc", "updateThreadInfo: " + threadId + "---" + update);
-//        writableDatabase.close();
+        SQLiteDatabase writableDatabase = dao.getWritableDatabase();
+        update = writableDatabase.update(DBHelper.TABLENAME, values, DBHelper.THREADID + " = ?", new String[]{threadId});
+        Log.e("zyc", "updateThreadInfo: " + threadId + "---" + "finished:" + finished + "---" + update);
     }
 
     public ArrayList<ThreadInfo> getThreadInfo(String id) {
-        SQLiteDatabase readableDatabase = dao.getReadableDatabase();
         ArrayList<ThreadInfo> list = new ArrayList<>();
         Cursor cursor = null;
-        synchronized (DBUtils.class) {
-            cursor = readableDatabase.query(DataBaseOpenHelper.TABLENAME, null, "id = ?", new String[]{id}, null, null, null);
-        }
+        SQLiteDatabase readableDatabase = dao.getReadableDatabase();
+        cursor = readableDatabase.query(DBHelper.TABLENAME, null, "id = ?", new String[]{id}, null, null, null);
         while (null != cursor && cursor.moveToNext()) {
             String id1 = cursor.getString(cursor.getColumnIndex("id"));
-            String threadId = cursor.getString(cursor.getColumnIndex(DataBaseOpenHelper.THREADID));
-            long size = cursor.getLong(cursor.getColumnIndex(DataBaseOpenHelper.SIZE));
-            long start = cursor.getLong(cursor.getColumnIndex(DataBaseOpenHelper.START));
-            long end = cursor.getLong(cursor.getColumnIndex(DataBaseOpenHelper.END));
-            long finish = cursor.getLong(cursor.getColumnIndex(DataBaseOpenHelper.FINISH));
+            long size = cursor.getLong(cursor.getColumnIndex(DBHelper.SIZE));
+            long start = cursor.getLong(cursor.getColumnIndex(DBHelper.START));
+            long end = cursor.getLong(cursor.getColumnIndex(DBHelper.END));
+            long finish = cursor.getLong(cursor.getColumnIndex(DBHelper.FINISH));
 
             ThreadInfo thread = new ThreadInfo(id1, size, start, end, finish);
             Log.e("zyc", "getThreadInfo: " + thread);
             list.add(thread);
 
         }
-
-//        readableDatabase.close();
         cursor.close();
         return list;
     }
 
     public boolean findThreadInfo(String id, String thread_id) {
-        SQLiteDatabase readableDatabase = dao.getReadableDatabase();
         List<AppDownloadManager.DownloadTask.ThreadInfo> list = new ArrayList<>();
         Cursor cursor = null;
-        synchronized (DBUtils.class) {
-            cursor = readableDatabase.query(DataBaseOpenHelper.TABLENAME, null, "id = ? and " + DataBaseOpenHelper.THREADID + " = ?", new String[]{id, thread_id}, null, null, null);
-        }
+        SQLiteDatabase readableDatabase = dao.getReadableDatabase();
+        cursor = readableDatabase.query(DBHelper.TABLENAME, null, DBHelper.THREADID + " = ?", new String[]{thread_id}, null, null, null);
         if (cursor != null) {
             boolean b = cursor.moveToNext();
-//            readableDatabase.close();
             cursor.close();
             return b;
         }
         return false;
     }
 
-    class DataBaseOpenHelper extends SQLiteOpenHelper {
+    class DBHelper extends SQLiteOpenHelper {
         public static final String TABLENAME = "thread_info";
         public static final String DBNAME = "download.db";
         public static final String THREADID = "threadId";
@@ -140,7 +116,7 @@ public class DBUtils {
         private final String SQL_DROP = "drop table if exists thread_info";
 
 
-        private DataBaseOpenHelper(Context context) {
+        private DBHelper(Context context) {
             super(context, DBNAME, null, VERSION);
         }
 
