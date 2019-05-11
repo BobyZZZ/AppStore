@@ -2,6 +2,7 @@ package com.bb.googleplaybb.ui.activity;
 
 import android.Manifest;
 import android.app.Dialog;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Build;
@@ -27,6 +28,7 @@ import com.bb.googleplaybb.R;
 import com.bb.googleplaybb.global.GooglePlayApplication;
 import com.bb.googleplaybb.net.NetHelper;
 import com.bb.googleplaybb.ui.fragment.BaseFragment;
+import com.bb.googleplaybb.ui.fragment.HomeFragment;
 import com.bb.googleplaybb.utils.FragmentFactory;
 import com.bb.googleplaybb.utils.UIUtils;
 import com.viewpagerindicator.TabPageIndicator;
@@ -40,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
     private NavigationView mNavigatinView;
     private ActionBarDrawerToggle toggle;
     private DrawerLayout mDrawer;
+    private int DELETE_CODE = 100;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,9 +107,11 @@ public class MainActivity extends AppCompatActivity {
                         });
                         dialog.show();
                         break;
-//                    case R.id.navigation_manage_app:
-//
-//                        break;
+                    case R.id.navigation_downloading:
+                        //打开正在下载页面
+//                        DownloadingManagerActivity.startActivity(UIUtils.getContext());
+                        DownloadingManagerActivity.startActivityForResult(MainActivity.this,DELETE_CODE);
+                        break;
                 }
                 item.setChecked(true);
                 mDrawer.closeDrawers();
@@ -173,7 +178,22 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-//    if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_EXTERNAL_STORAGE)
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (resultCode) {
+            case DownloadingManagerActivity.RESULT_DELETE:
+                int deleteCount = data.getIntExtra(DownloadingManagerActivity.DELETE,0);
+                if (deleteCount > 0) {
+//                    FragmentFactory.createFragment(mViewPager.getCurrentItem()).loadData();
+                    BaseFragment fragment = FragmentFactory.createFragment(mViewPager.getCurrentItem());
+                    fragment.refresh();
+                }
+                break;
+        }
+    }
+
+    //    if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_EXTERNAL_STORAGE)
 //            != PackageManager.PERMISSION_GRANTED) {
 //        //申请权限
 //        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 110);

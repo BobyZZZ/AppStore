@@ -25,6 +25,7 @@ public class AppFragment extends BaseFragment {
 
     private ArrayList<AppInfo> data;
     private AppNetProtocol mProtocol;
+    private HomeAdapter mAdapter;
 
     @Override
     public LoadingPage.ResultState onLoad() {
@@ -36,7 +37,8 @@ public class AppFragment extends BaseFragment {
     @Override
     public View onCreateSuccessView() {
         MyListView view = new MyListView(UIUtils.getContext());
-        view.setAdapter(new HomeAdapter(data));
+        mAdapter = new HomeAdapter(data);
+        view.setAdapter(mAdapter);
 
         view.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -69,5 +71,9 @@ public class AppFragment extends BaseFragment {
         protected BaseHolder getHolder(int position) {
             return new HomeHolder();
         }
+    }
+
+    public void refresh() {
+        mAdapter.notifyDataSetChanged();
     }
 }

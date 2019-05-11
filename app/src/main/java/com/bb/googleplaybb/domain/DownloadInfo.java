@@ -17,18 +17,23 @@ import static com.bb.googleplaybb.manager.AppDownloadManager.DownloadTask.THREAD
 
 public class DownloadInfo {
     public String id;//应用id
+    public String icon;//应用图标
     public String name;//应用名称
+    public String packageName;
     public String downloadUrl;//安装包下载url
     public long size;//安装包大小
     public int mCurrentState;//下载状态
     public long mDownloadedSize;//已下载大小
     public String path;//安装包本地路径
     public int mFinishedCount;//已完成的线程数量
+    public int mPauseCount;
 
     private String GOOGLEPLAY = "GooglePlayBB";//存放在sd卡的文件夹
     private String DOWNLOAD = "download";
     public ArrayList<ThreadInfo> mThreads;
     private long sum;
+    //是否被选中
+    private boolean isChecked;
     private final String TAG = "zycDownloadInfo";
 
     public boolean isThreadsEmpty() {
@@ -49,6 +54,7 @@ public class DownloadInfo {
                 info.setDownloadInfo(this);
                 mThreads.add(info);
             }
+            mFinishedCount = THREADCOUNT - mThreads.size();
         }
     }
 
@@ -81,6 +87,8 @@ public class DownloadInfo {
     public static DownloadInfo copy(AppInfo info) {
         DownloadInfo downloadInfo = new DownloadInfo();
         downloadInfo.id = info.id;
+        downloadInfo.icon = info.iconUrl;
+        downloadInfo.packageName = info.packageName;
         downloadInfo.name = info.name;
         downloadInfo.downloadUrl = info.downloadUrl;
         downloadInfo.size = info.size;
@@ -123,5 +131,24 @@ public class DownloadInfo {
         return true;
     }
 
+    @Override
+    public String toString() {
+        return "DownloadInfo{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", size=" + size +
+                ", mCurrentState=" + mCurrentState +
+                ", mDownloadedSize=" + mDownloadedSize +
+                ", mThreads=" + mThreads +
+                ", isChecked=" + isChecked +
+                '}';
+    }
 
+    public void setChecked(boolean checked) {
+        this.isChecked = checked;
+    }
+
+    public boolean getChecked() {
+        return isChecked;
+    }
 }

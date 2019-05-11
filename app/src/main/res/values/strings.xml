@@ -19,4 +19,13 @@
         <item>分类</item>
         <item>排行</item>
     </string-array>
+
+    <string name="app_detail">详情页</string>
+    <string name="downloading">正在下载</string>
+    <string name="empty_layout">这里什么都没有呢~</string>
+    <string name="start_all">全部开始</string>
+    <string name="pause_all">全部暂停</string>
+    <string name="text_delete">删除</string>
+    <string name="select_all">全选</string>
+    <string name="cancel">取消</string>
 </resources>

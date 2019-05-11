@@ -24,4 +24,9 @@
     <color name="progress">#0294f0</color>
     <color name="menu_bg_normal">#f0f1f3</color>
     <color name="menu_bg_press">#cecece</color>
+
+    <color name="text_black">#000</color>
+    <color name="text_tip_color_downloading">#ccc</color>
+    <color name="text_tip_color_paused">#ff3050</color>
+    <color name="text_downloading_title_color">#ccc</color>
 </resources>

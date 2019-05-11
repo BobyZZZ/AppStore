@@ -38,7 +38,6 @@ import com.bb.googleplaybb.utils.BitmapHelper;
 import com.bb.googleplaybb.utils.UIUtils;
 import com.lidroid.xutils.BitmapUtils;
 
-import java.io.File;
 import java.util.Random;
 
 import cn.sharesdk.onekeyshare.OnekeyShare;

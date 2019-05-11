@@ -2,7 +2,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/group1"
+            android:id="@+id/manager"
             android:title="管理">
             <menu>
                 <group android:checkableBehavior="single">
@@ -10,10 +10,10 @@
                         android:id="@+id/navigation_modifyIP"
                         android:icon="@drawable/ic_home"
                         android:title="修改ip"></item>
-                    <!--<item-->
-                        <!--android:id="@+id/navigation_manage_app"-->
-                        <!--android:icon="@drawable/ic_home"-->
-                        <!--android:title="应用管理"></item>-->
+                    <item
+                        android:id="@+id/navigation_downloading"
+                        android:icon="@drawable/download_icon"
+                        android:title="正在下载"></item>
                 </group>
             </menu>
         </item>

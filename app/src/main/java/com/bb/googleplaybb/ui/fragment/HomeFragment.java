@@ -39,6 +39,7 @@ public class HomeFragment extends BaseFragment {
     private int mPreviousSelected = 0;
     private ViewPager viewPager;
     private HomeNetProtocol mHomeProtocol;
+    private HomeAdapter mAdapter;
 
     @Override
     public LoadingPage.ResultState onLoad() {
@@ -141,7 +142,8 @@ public class HomeFragment extends BaseFragment {
 
         //将轮播条所在布局添加为头布局
         listView.addHeaderView(rlRoot);
-        listView.setAdapter(new HomeAdapter(data));
+        mAdapter = new HomeAdapter(data);
+        listView.setAdapter(mAdapter);
 
         AutoPlayTask autoPlayTask = new AutoPlayTask();
         autoPlayTask.start();//开始轮播
@@ -233,5 +235,9 @@ public class HomeFragment extends BaseFragment {
 
             UIUtils.getHandler().postDelayed(this, 2000);
         }
+    }
+
+    public void refresh() {
+        mAdapter.notifyDataSetChanged();
     }
 }

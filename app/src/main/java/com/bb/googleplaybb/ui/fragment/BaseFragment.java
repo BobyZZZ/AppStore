@@ -88,4 +88,7 @@ public abstract class BaseFragment extends Fragment {
         }
         return LoadingPage.ResultState.RESULT_ERROR;
     }
+
+    public void refresh() {
+    }
 }

@@ -1,5 +1,7 @@
 package com.bb.googleplaybb.manager;
 
+import android.util.Log;
+
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -19,7 +21,7 @@ public class ThreadManager {
                 if (mThreadPool == null) {
                     int cpuCount = Runtime.getRuntime().availableProcessors();
                     System.out.println("cpuCount : " + cpuCount);
-                    mThreadPool = new ThreadPool(10, 10, 2L);
+                    mThreadPool = new ThreadPool(2 * cpuCount + 1, 2 * cpuCount + 1, 60L);
                 }
             }
         }
@@ -44,6 +46,7 @@ public class ThreadManager {
                 executor = new ThreadPoolExecutor(corePoolSize, maxPoolSize, keepAliveTime, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), Executors.defaultThreadFactory(), new ThreadPoolExecutor.AbortPolicy());
             }
             executor.execute(r);
+            Log.e("ThreadManager", "execute: " + r);
         }
 
         public void cancel(Runnable r) {
@@ -51,6 +54,7 @@ public class ThreadManager {
                 BlockingQueue<Runnable> queue = executor.getQueue();
                 if (queue.contains(r)) {
                     queue.remove(r);
+                    Log.e("ThreadManager", "cancel: " + r);
                 }
             }
         }

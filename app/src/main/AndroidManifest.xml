@@ -29,9 +29,7 @@
             >
         </activity>
         <activity android:name=".ui.activity.AppOfTypeActivity"/>
-        <activity android:name=".ui.activity.TestActivity"
-            android:theme="@style/AppOfTypeTheme"
-            />
+        <activity android:name=".ui.activity.DownloadingManagerActivity"/>
 
         <provider
             android:grantUriPermissions="true"
