@@ -13,6 +13,7 @@ import android.widget.RelativeLayout;
 
 import com.bb.googleplaybb.R;
 import com.bb.googleplaybb.domain.AppInfo;
+import com.bb.googleplaybb.manager.NotifycationHelper;
 import com.bb.googleplaybb.net.NetHelper;
 import com.bb.googleplaybb.net.protocol.HomeNetProtocol;
 import com.bb.googleplaybb.ui.activity.HomeDetailActivity;

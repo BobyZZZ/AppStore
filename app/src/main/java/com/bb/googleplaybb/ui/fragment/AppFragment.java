@@ -5,6 +5,7 @@ import android.view.View;
 import android.widget.AdapterView;
 
 import com.bb.googleplaybb.domain.AppInfo;
+import com.bb.googleplaybb.manager.NotifycationHelper;
 import com.bb.googleplaybb.net.protocol.AppNetProtocol;
 import com.bb.googleplaybb.ui.activity.HomeDetailActivity;
 import com.bb.googleplaybb.ui.adapter.MyBaseAdapter;

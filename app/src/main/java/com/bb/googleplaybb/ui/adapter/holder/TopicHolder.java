@@ -40,7 +40,6 @@ public class TopicHolder extends BaseHolder<TopicInfo> {
         tvDes.post(new Runnable() {
             @Override
             public void run() {
-//                utils.display(ivPic, NetHelper.URL + data.url);
                 Glide.with(GooglePlayApplication.getContext()).load(NetHelper.URL + data.url).into(ivPic);
             }
         });

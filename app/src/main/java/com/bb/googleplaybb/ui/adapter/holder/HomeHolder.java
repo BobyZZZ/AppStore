@@ -170,17 +170,8 @@ public class HomeHolder extends BaseHolder<AppInfo> implements AppDownloadManage
 
     @Override
     public void onClick(View v) {
-//        downloadInfo = mDm.getDownloadInfo(getData());
-//        if (downloadInfo == null || downloadInfo.mCurrentState == AppDownloadManager.STATE_PAUSE || downloadInfo.mCurrentState == AppDownloadManager.STATE_ERROR) {
-//            mDm.start(getData());
-//        } else if (downloadInfo.mCurrentState == AppDownloadManager.STATE_DOWNLOADING || downloadInfo.mCurrentState == AppDownloadManager.STATE_WAITING) {
-//            mDm.pause(getData());
-//        } else {
-//            mDm.install(getData());
-//        }
         AppInfo data = getData();
         switch (v.getId()) {
-//            case R.id.btn_download:
             case R.id.fl_progress:
                 if (mCurrentState == AppDownloadManager.STATE_UNDO || mCurrentState == AppDownloadManager.STATE_PAUSE || mCurrentState == AppDownloadManager.STATE_ERROR) {
                     mDm.download(data);

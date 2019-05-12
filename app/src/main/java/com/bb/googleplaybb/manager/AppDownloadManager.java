@@ -7,9 +7,11 @@ import android.support.v4.content.FileProvider;
 import android.util.Log;
 
 import com.bb.googleplaybb.BuildConfig;
+import com.bb.googleplaybb.broadcastReceiver.NotificationBroadcastReceiver;
 import com.bb.googleplaybb.domain.AppInfo;
 import com.bb.googleplaybb.domain.DownloadInfo;
 import com.bb.googleplaybb.net.NetHelper;
+import com.bb.googleplaybb.utils.NotificationBroadcastHelper;
 import com.bb.googleplaybb.utils.UIUtils;
 
 import java.io.File;
@@ -225,6 +227,10 @@ public class AppDownloadManager {
             for (ThreadInfo threadInfo : mDownloadInfo.mThreads) {
                 ThreadManager.getThreadPool().execute(threadInfo);
             }
+
+            //开始下载，发送广播，显示notification
+            NotificationBroadcastHelper.send(NotifycationHelper.ACTION_NOTIFY, mDownloadInfo.id);
+//            NotifycationHelper.getInstance().notify(mDownloadInfo);
         }
 
         public void stop() {
@@ -290,10 +296,13 @@ public class AppDownloadManager {
                                 dbUtils.update(mDownloadInfo, threadId, mFinished);
                                 timeRecord = updateThreadInfoTime;
                                 Log.e(TAG, "updateDBTime:" + (System.currentTimeMillis() - updateThreadInfoTime));
+
                             }
 
                             Log.e(TAG, "oneTimeIO:" + (System.currentTimeMillis() - oneTime));
                             downloadManager.notifyDownloadProgressChange(mDownloadInfo);
+                            NotificationBroadcastHelper.send(NotifycationHelper.ACTION_NOTIFY, id);
+//                            NotifycationHelper.getInstance().notify(mDownloadInfo);
                         }
                         if (mFinished == size) {
                             //单个下载成功，从数据库中删除记录
@@ -469,103 +478,6 @@ public class AppDownloadManager {
             }
         }
     }
-//    //下载方法
-//    public synchronized void download(AppInfo appInfo) {
-//        //首先从任务列表中获取下载信息
-//        DownloadInfo downloadInfo = mDownloadInfoMap.get(appInfo.id);
-//        if (downloadInfo == null) {
-//            //下载信息为空则新创建一个下载信息
-//            downloadInfo = DownloadInfo.copy(appInfo);//状态默认为undo、进度为0
-//            //判断下载信息对应本地的文件是否存在,存在则修改downloadInfo的下载进度
-//            File file = new File(downloadInfo.getFilePath());
-//            if (file.exists()) {
-//                downloadInfo.mDownloadedSize = file.length();
-//            }
-//        }
-//        downloadInfo.mCurrentState = STATE_WAITING;
-//        notifyDownloadStateChange(downloadInfo);
-//        //添加到下载信息集合
-//        mDownloadInfoMap.put(downloadInfo.id, downloadInfo);
-//
-//        DownloadTask task = new DownloadTask(downloadInfo);
-//        mDownloadTaskMap.put(downloadInfo.id, task);
-//        ThreadManager.getThreadPool().execute(task);
-//    }
-//
-//    //下载任务，在线程池中运行
-//    public class DownloadTask implements Runnable {
-//        private DownloadInfo downloadInfo;
-//
-//        public DownloadTask(DownloadInfo downloadInfo) {
-//            this.downloadInfo = downloadInfo;
-//        }
-//
-//        @Override
-//        public void run() {
-//            //开始下载
-//            System.out.println("开始下载拉");
-//            downloadInfo.mCurrentState = STATE_DOWNLOADING;
-//            notifyDownloadStateChange(downloadInfo);
-//
-//            System.out.println("downloadInfo.path:" + downloadInfo.path);
-//            File file = new File(downloadInfo.path);
-//
-//            OkHttpClient client = new OkHttpClient();
-//            Request request = null;
-//            if (!file.exists() || file.length() != downloadInfo.mDownloadedSize || downloadInfo.mDownloadedSize == 0) {
-//                //从头开始下载
-//                System.out.println("从头开始下载.....");
-//                file.delete();//文件的大小跟downloadInfo当前的进度不一致或者下载状态为失败，则删除文件，第一种情况文件不存在删除文件也不会报错
-//                downloadInfo.mDownloadedSize = 0;
-//                request = new Request.Builder().url(NetHelper.URL + downloadInfo.downloadUrl).build();
-//            } else {
-//                //断点续传
-//                System.out.println("断点续传");
-//                request = new Request.Builder().url(NetHelper.URL + downloadInfo.downloadUrl)
-//                        .addHeader("RANGE", "bytes=" + file.length() + "-").build();
-//            }
-//            Response response = null;
-//            try {
-//                response = client.newCall(request).execute();
-//                if (response != null && response.isSuccessful()) {
-//                    InputStream in = response.body().byteStream();
-////                    RandomAccessFile randomAccessFile = new RandomAccessFile(file, "rw");
-////                    randomAccessFile.seek(file.length());
-//                    FileOutputStream out = new FileOutputStream(file, true);
-//                    int len = -1;
-//                    byte[] buffer = new byte[2048];
-//                    while ((len = in.read(buffer)) != -1 && downloadInfo.mCurrentState == STATE_DOWNLOADING) {
-//                        out.write(buffer, 0, len);
-//                        downloadInfo.mDownloadedSize += len;
-//                        notifyDownloadProgressChange(downloadInfo);
-//                    }
-//                    out.flush();
-//                    //走到此处情况可能为：下载完成、下载被暂停了、下载失败
-//                    if (file.length() == downloadInfo.size) {
-//                        //下载完成
-//                        downloadInfo.mCurrentState = STATE_SUCCESS;
-//                        notifyDownloadStateChange(downloadInfo);
-//                    } else if (downloadInfo.mCurrentState == STATE_PAUSE) {
-//                        notifyDownloadStateChange(downloadInfo);
-//                    } else {
-//                        //下载失败
-//                        downloadInfo.mCurrentState = STATE_ERROR;
-//                        downloadInfo.mDownloadedSize = 0;
-//                        notifyDownloadStateChange(downloadInfo);
-//                    }
-//                }
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            } finally {
-//                if (response != null) {
-//                    response.body().close();
-//                    response.close();
-//                }
-//            }
-//            //下载完成后从任务集合中删除
-//            mDownloadTaskMap.remove(downloadInfo.id);
-//        }
-//    }
 
     //3.注册观察者
     public synchronized void registeredObserver(DownloadObserver observer) {
@@ -588,6 +500,11 @@ public class AppDownloadManager {
 
     public DownloadInfo getDownloadInfo(AppInfo appInfo) {
         DownloadInfo downloadInfo = mDownloadInfoMap.get(appInfo.id);
+        return downloadInfo;
+    }
+
+    public DownloadInfo getDownloadInfo(String id) {
+        DownloadInfo downloadInfo = mDownloadInfoMap.get(id);
         return downloadInfo;
     }
 }
