@@ -5,6 +5,7 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -18,20 +19,33 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.bb.googleplaybb.R;
+import com.bb.googleplaybb.domain.User;
 import com.bb.googleplaybb.global.GooglePlayApplication;
 import com.bb.googleplaybb.net.NetHelper;
 import com.bb.googleplaybb.ui.fragment.BaseFragment;
 import com.bb.googleplaybb.ui.fragment.HomeFragment;
+import com.bb.googleplaybb.utils.FileUtils;
 import com.bb.googleplaybb.utils.FragmentFactory;
+import com.bb.googleplaybb.utils.LoginUtils;
+import com.bb.googleplaybb.utils.SharePreferenceUtils;
 import com.bb.googleplaybb.utils.UIUtils;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
 import com.viewpagerindicator.TabPageIndicator;
+
+import org.w3c.dom.Text;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -42,7 +56,16 @@ public class MainActivity extends AppCompatActivity {
     private NavigationView mNavigatinView;
     private ActionBarDrawerToggle toggle;
     private DrawerLayout mDrawer;
-    private int DELETE_CODE = 100;
+    private ImageView mTouxiang;
+    private TextView mLogin;
+
+    private int REQUEST_DELETE = 100;
+    private int REQUEST_LOGIN = 101;
+
+    public static final int RESULT_DELETE = 200;
+    public static final int RESULT_LOGIN = 201;
+
+    public static User currentUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,14 +74,33 @@ public class MainActivity extends AppCompatActivity {
         initPermission();
 
         initView();
-        //initActionBar();
         initToolBar();
+        login();
+    }
+
+    private void login() {
+        setUserManageVisible(false);
+        User userFromSP = SharePreferenceUtils.getUser(this);
+        if (userFromSP != null) {
+            User result = LoginUtils.getInstance().findUser(userFromSP.getUser_id(), userFromSP.getUser_pwd());
+            if (result != null) {
+                loginSuccess(result);
+            }
+        }
+    }
+
+    private void setUserManageVisible(boolean visible) {
+        Menu menu = mNavigatinView.getMenu();
+        MenuItem menuItem = menu.findItem(R.id.user_manage);
+        if (menuItem != null) {
+            menuItem.setVisible(visible);
+        }
     }
 
     private void initPermission() {
         int checkSelfPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkSelfPermission != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},0);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 0);
         }
     }
 
@@ -77,6 +119,20 @@ public class MainActivity extends AppCompatActivity {
         mViewPager = findViewById(R.id.vp_pager);
         mIndicator = findViewById(R.id.indicator);
         mNavigatinView = findViewById(R.id.navigation_view);
+        View headerView = mNavigatinView.inflateHeaderView(R.layout.navigation_header);
+        mTouxiang = headerView.findViewById(R.id.iv_touxiang);
+        mLogin = headerView.findViewById(R.id.tv_login);
+
+        if (currentUser == null) {
+            mLogin.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    LoginActivity.startForResult(MainActivity.this, 0);
+                }
+            });
+        } else {
+            mLogin.setText(currentUser.getUser_id());
+        }
 
         mNavigatinView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -109,8 +165,15 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     case R.id.navigation_downloading:
                         //打开正在下载页面
-//                        DownloadingManagerActivity.startActivity(UIUtils.getContext());
-                        DownloadingManagerActivity.startActivityForResult(MainActivity.this,DELETE_CODE);
+                        DownloadingManagerActivity.startActivityForResult(MainActivity.this, 0);
+                        break;
+                    case R.id.navigation_liked:
+                        //打开正在下载页面
+                        LikedActivity.start(MainActivity.this);
+                        break;
+                    case R.id.navigation_login_out:
+                        logout();
+                        setUserManageVisible(false);
                         break;
                 }
                 item.setChecked(true);
@@ -182,14 +245,57 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (resultCode) {
-            case DownloadingManagerActivity.RESULT_DELETE:
-                int deleteCount = data.getIntExtra(DownloadingManagerActivity.DELETE,0);
+            case RESULT_DELETE:
+                int deleteCount = data.getIntExtra(DownloadingManagerActivity.DELETE, 0);
                 if (deleteCount > 0) {
 //                    FragmentFactory.createFragment(mViewPager.getCurrentItem()).loadData();
                     BaseFragment fragment = FragmentFactory.createFragment(mViewPager.getCurrentItem());
                     fragment.refresh();
                 }
                 break;
+
+            case RESULT_LOGIN:
+                String user_id = data.getStringExtra("user_id");
+                String user_pwd = data.getStringExtra("user_pwd");
+                User user = LoginUtils.getInstance().findUser(user_id, user_pwd);
+                if (user != null) {
+                    loginSuccess(user);
+                }
+                break;
+        }
+    }
+
+    private void loginSuccess(User user) {
+        currentUser = user;
+        mLogin.setText(user.getUser_name());
+        mLogin.setOnClickListener(null);
+
+        setUserManageVisible(true);
+
+        String photoPath = user.getUser_photo_path();
+        if (!TextUtils.isEmpty(photoPath)) {
+            RequestOptions requestOptions1 = new RequestOptions().skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).circleCrop();
+            //将照片显示在 ivImage上
+            Glide.with(this).load(photoPath).apply(requestOptions1).into(mTouxiang);
+        }
+    }
+
+    private void logout() {
+        if (currentUser != null) {
+//            currentUser.setUser_id("");
+//            currentUser.setUser_pwd("");
+//            currentUser.setUser_name("");
+            currentUser = null;
+            SharePreferenceUtils.setUser(this, "", "");
+
+            mLogin.setText(R.string.login);
+            mLogin.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    LoginActivity.startForResult(MainActivity.this, 0);
+                }
+            });
+            mTouxiang.setImageResource(R.drawable.select_picture);
         }
     }
 

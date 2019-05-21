@@ -11,6 +11,7 @@ import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.text.format.Formatter;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,9 +20,11 @@ import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bb.googleplaybb.R;
 import com.bb.googleplaybb.domain.AppInfo;
+import com.bb.googleplaybb.domain.AppLiked;
 import com.bb.googleplaybb.domain.DownloadInfo;
 import com.bb.googleplaybb.manager.AppDownloadManager;
 import com.bb.googleplaybb.manager.DBUtils;
@@ -33,6 +36,7 @@ import com.bb.googleplaybb.ui.adapter.holder.HomeDetailSafeHolder;
 import com.bb.googleplaybb.ui.view.DownloadButton;
 import com.bb.googleplaybb.ui.view.LoadingPage;
 import com.bb.googleplaybb.utils.BitmapHelper;
+import com.bb.googleplaybb.utils.LoginUtils;
 import com.bb.googleplaybb.utils.UIUtils;
 import com.lidroid.xutils.BitmapUtils;
 
@@ -63,6 +67,10 @@ public class HomeDetailActivity extends AppCompatActivity implements View.OnClic
     private DownloadButton mVDownload;
     private AppDownloadManager mDownloadManager;
 
+    private boolean liked;
+    private View mLiked;
+    private LoginUtils mLoginUtils;
+
     public static void startHomeDetailActivity(Context context, String packageName, String appName) {
         Intent intent = new Intent(context, HomeDetailActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -78,6 +86,7 @@ public class HomeDetailActivity extends AppCompatActivity implements View.OnClic
         NestedScrollView flContainer = findViewById(R.id.fl_container);
         packageName = getIntent().getStringExtra(PACKAGENAME);
         mAppName = getIntent().getStringExtra(APPNAME);
+        mLoginUtils = LoginUtils.getInstance();
 
         LoadingPage mLoadingPage = new LoadingPage(UIUtils.getContext()) {
             @Override
@@ -225,8 +234,15 @@ public class HomeDetailActivity extends AppCompatActivity implements View.OnClic
     private void initDownloadAndShare(View rootView) {
         mDownloadManager = AppDownloadManager.getDownloadManager();
         mVDownload = rootView.findViewById(R.id.vDownload);
+        mLiked = rootView.findViewById(R.id.iv_liked);
         TextView vShare = rootView.findViewById(R.id.vShare);
         vShare.setOnClickListener(this);
+        mLiked.setOnClickListener(this);
+
+        if (MainActivity.currentUser != null && !TextUtils.isEmpty(MainActivity.currentUser.getUser_id())) {
+            liked = mLoginUtils.findLiked(MainActivity.currentUser.getUser_id(), appinfo.id);
+            mLiked.setBackgroundResource(liked ? R.drawable.favorite_red : R.drawable.favorite_gray);
+        }
 
         DownloadInfo downloadInfo = mDownloadManager.getDownloadInfo(appinfo);
         final int mCurrentState;
@@ -304,6 +320,28 @@ public class HomeDetailActivity extends AppCompatActivity implements View.OnClic
                 break;
             case R.id.vShare:
                 showShare(appinfo);
+                break;
+            case R.id.iv_liked:
+                if (MainActivity.currentUser != null && !TextUtils.isEmpty(MainActivity.currentUser.getUser_id())) {
+                    liked = !liked;
+                    if (liked) {
+                        AppLiked appLiked = new AppLiked(MainActivity.currentUser.getUser_id(), appinfo.id, appinfo.name, appinfo.des, appinfo.packageName, appinfo.iconUrl);
+                        long result = mLoginUtils.insertLiked(appLiked);
+                        if (result > 0) {
+                            mLiked.setBackgroundResource(R.drawable.favorite_red);
+                            Toast.makeText(UIUtils.getContext(), "收藏成功", Toast.LENGTH_SHORT).show();
+                        } else {
+                            liked = false;
+                            Toast.makeText(UIUtils.getContext(), "收藏失败", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        mLiked.setBackgroundResource(R.drawable.favorite_gray);
+                        mLoginUtils.deleteLiked(MainActivity.currentUser.getUser_id(), appinfo.id);
+                    }
+                } else {
+                    //未登录
+                    Toast.makeText(UIUtils.getContext(), "请先登录", Toast.LENGTH_SHORT).show();
+                }
                 break;
         }
     }

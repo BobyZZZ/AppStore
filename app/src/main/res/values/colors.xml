@@ -29,4 +29,7 @@
     <color name="text_tip_color_downloading">#ccc</color>
     <color name="text_tip_color_paused">#ff3050</color>
     <color name="text_downloading_title_color">#ccc</color>
+
+    <color name="unlike_mask_bg">#80000000</color>
+    <color name="text_error_tips">#f00</color>
 </resources>

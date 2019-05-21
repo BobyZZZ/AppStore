@@ -3,9 +3,7 @@ package com.bb.googleplaybb.broadcastReceiver;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 
-import com.bb.googleplaybb.domain.DownloadInfo;
 import com.bb.googleplaybb.manager.AppDownloadManager;
 import com.bb.googleplaybb.manager.NotifycationHelper;
 
@@ -20,18 +18,22 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        NotifycationHelper helper = NotifycationHelper.getInstance();
-        String id = intent.getStringExtra("id");
-        DownloadInfo downloadInfo = mDownloadManager.getDownloadInfo(id);
-        if (downloadInfo != null) {
+        final NotifycationHelper helper = NotifycationHelper.getInstance();
+        final String id = intent.getStringExtra("id");
+        if (id != null) {
             int action = intent.getIntExtra("action", 0);
             switch (action) {
-                case NotifycationHelper.ACTION_NOTIFY:
-                        helper.notify(downloadInfo);
-//                    helper.notify(Integer.parseInt(downloadInfo.id),downloadInfo.getProgress());
+                case NotifycationHelper.ACTION_SHOW:
+                    helper.showNotification(id);
                     break;
                 case NotifycationHelper.ACTION_CANCEL:
-                    helper.cancelById(Integer.parseInt(id));
+                    mDownloadManager.pause(mDownloadManager.getDownloadInfo(id));
+                    break;
+                case NotifycationHelper.ACTION_FINISHED:
+                    helper.showFinishedNotification(id);
+                    break;
+                case NotifycationHelper.ACTION_UPDATE:
+                    helper.updateNotification(id);
                     break;
             }
         }

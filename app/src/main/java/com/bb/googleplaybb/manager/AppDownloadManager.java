@@ -7,7 +7,6 @@ import android.support.v4.content.FileProvider;
 import android.util.Log;
 
 import com.bb.googleplaybb.BuildConfig;
-import com.bb.googleplaybb.broadcastReceiver.NotificationBroadcastReceiver;
 import com.bb.googleplaybb.domain.AppInfo;
 import com.bb.googleplaybb.domain.DownloadInfo;
 import com.bb.googleplaybb.net.NetHelper;
@@ -229,8 +228,7 @@ public class AppDownloadManager {
             }
 
             //开始下载，发送广播，显示notification
-            NotificationBroadcastHelper.send(NotifycationHelper.ACTION_NOTIFY, mDownloadInfo.id);
-//            NotifycationHelper.getInstance().notify(mDownloadInfo);
+            NotificationBroadcastHelper.send(NotifycationHelper.ACTION_SHOW, mDownloadInfo.id);
         }
 
         public void stop() {
@@ -283,6 +281,8 @@ public class AppDownloadManager {
                         int len = -1;
                         byte[] buffer = new byte[2048];
                         String TAG = "time";
+                        int oldProgress = (int) (mDownloadInfo.getProgress() * 100);
+
                         //每300ms更新一次数据库记录
                         long timeRecord = System.currentTimeMillis();
                         while ((len = in.read(buffer)) != -1 && mDownloadInfo.mCurrentState == STATE_DOWNLOADING) {
@@ -296,13 +296,16 @@ public class AppDownloadManager {
                                 dbUtils.update(mDownloadInfo, threadId, mFinished);
                                 timeRecord = updateThreadInfoTime;
                                 Log.e(TAG, "updateDBTime:" + (System.currentTimeMillis() - updateThreadInfoTime));
-
                             }
 
                             Log.e(TAG, "oneTimeIO:" + (System.currentTimeMillis() - oneTime));
-                            downloadManager.notifyDownloadProgressChange(mDownloadInfo);
-                            NotificationBroadcastHelper.send(NotifycationHelper.ACTION_NOTIFY, id);
-//                            NotifycationHelper.getInstance().notify(mDownloadInfo);
+
+                            int nowProgress = (int) (mDownloadInfo.getProgress() * 100);
+                            if (nowProgress - oldProgress > 0) {
+                                oldProgress = nowProgress;
+                                downloadManager.notifyDownloadProgressChange(mDownloadInfo);
+                                NotificationBroadcastHelper.send(NotifycationHelper.ACTION_UPDATE, id);
+                            }
                         }
                         if (mFinished == size) {
                             //单个下载成功，从数据库中删除记录
@@ -314,14 +317,16 @@ public class AppDownloadManager {
                         Log.e(TAG, "id:" + mDownloadInfo.id + "---mFinishedCount: " + mDownloadInfo.mFinishedCount + "---" + file.length());
                         if (mDownloadInfo.mFinishedCount == THREADCOUNT && file.length() == mDownloadInfo.size) {
                             //下载成功
-                            Log.e(TAG, "totalTime: " + (System.currentTimeMillis() - totalTime));
+                            Log.e(TAG, "totalTime: " + (System.currentTimeMillis() - totalTime) + "---" + mDownloadInfo.mDownloadedSize);
                             mDownloadInfo.mCurrentState = STATE_SUCCESS;
                             downloadManager.notifyDownloadStateChange(mDownloadInfo);
+                            NotificationBroadcastHelper.send(NotifycationHelper.ACTION_FINISHED, id);
                             dbUtils.delete(id);
                         } else if (mDownloadInfo.mCurrentState == STATE_PAUSE) {
                             //更新数据库中记录
                             dbUtils.update(mDownloadInfo, threadId, mFinished);
                             if (++mDownloadInfo.mPauseCount == THREADCOUNT - mDownloadInfo.mFinishedCount) {
+                                NotifycationHelper.getInstance().cancelById(Integer.parseInt(id));
                                 downloadManager.notifyDownloadStateChange(mDownloadInfo);
                                 mDownloadInfo.mPauseCount = 0;
                             }
@@ -427,7 +432,6 @@ public class AppDownloadManager {
                         new File(downloadInfo.getFilePath()));
             } else {
                 uri = Uri.parse("file://" + downloadInfo.getFilePath());
-//                uri = Uri.fromFile(new File(downloadInfo.getFilePath()));
             }
             intent.setDataAndType(uri, "application/vnd.android.package-archive");
             UIUtils.getContext().startActivity(intent);

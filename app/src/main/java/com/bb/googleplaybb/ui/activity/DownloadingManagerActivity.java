@@ -31,6 +31,8 @@ import com.bumptech.glide.Glide;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.bb.googleplaybb.ui.activity.MainActivity.RESULT_DELETE;
+
 
 public class DownloadingManagerActivity extends AppCompatActivity implements AppDownloadManager.DownloadObserver, View.OnClickListener {
 
@@ -48,7 +50,6 @@ public class DownloadingManagerActivity extends AppCompatActivity implements App
     private View mCancel;
     private int mDeleteCount;
     public static final String DELETE = "delete";
-    public static final int RESULT_DELETE = 200;
 
 
     public static void startActivityForResult(Activity context, int requestCode) {

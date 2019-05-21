@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/drawer"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/register_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <TextView
+            android:id="@+id/tv_select_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:text="选择头像:"
+            android:textColor="@color/text_downloading_title_color"
+            android:textSize="20sp"
+            app:layout_constraintBottom_toBottomOf="@id/iv_icon"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="@id/iv_icon" />
+
+        <ImageView
+            android:id="@+id/iv_icon"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/select_picture"
+            app:layout_constraintLeft_toRightOf="@id/tv_select_icon"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_user_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="昵称："
+            android:textColor="@color/text_downloading_title_color"
+            android:textSize="20sp"
+            app:layout_constraintLeft_toLeftOf="@id/tv_select_icon"
+            app:layout_constraintTop_toBottomOf="@id/iv_icon" />
+
+        <EditText
+            android:id="@+id/et_user_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:hint="@string/et_user_name_hint"
+            android:maxLength="10"
+            android:maxLines="1"
+            android:textColor="@color/text_downloading_title_color"
+            android:textSize="20sp"
+            app:layout_constraintBottom_toBottomOf="@id/tv_user_name"
+            app:layout_constraintLeft_toRightOf="@id/tv_user_name"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="@id/tv_user_name"
+            tools:text="dnm" />
+
+        <TextView
+            android:id="@+id/tv_user_name_tips"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="8dp"
+            android:text="用户名已存在"
+            android:textColor="@color/text_error_tips"
+            android:textSize="14sp"
+            android:visibility="gone"
+            app:layout_constraintRight_toRightOf="@id/et_user_name"
+            app:layout_constraintTop_toBottomOf="@id/et_user_name" />
+    </android.support.constraint.ConstraintLayout>
+
+    <TextView
+        android:id="@+id/tv_id"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="12dp"
+        android:text="帐号："
+        android:textColor="@color/text_downloading_title_color"
+        android:textSize="20sp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/register_layout" />
+
+    <EditText
+        android:id="@+id/et_id"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="@string/et_id_hint"
+        android:inputType="number"
+        android:maxLength="11"
+        android:textColor="@color/text_downloading_title_color"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="@id/tv_id"
+        app:layout_constraintLeft_toRightOf="@id/tv_id"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="@id/tv_id"
+        tools:text="131894280711" />
+
+    <TextView
+        android:id="@+id/tv_id_tips"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="8dp"
+        android:text="手机号码输入错误"
+        android:textColor="@color/text_error_tips"
+        android:textSize="14sp"
+        android:visibility="gone"
+        app:layout_constraintRight_toRightOf="@id/et_id"
+        app:layout_constraintTop_toBottomOf="@id/et_id" />
+
+    <TextView
+        android:id="@+id/tv_pwd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="密码："
+        android:textColor="@color/text_downloading_title_color"
+        android:textSize="20sp"
+        app:layout_constraintLeft_toLeftOf="@id/tv_id"
+        app:layout_constraintTop_toBottomOf="@id/tv_id_tips" />
+
+    <EditText
+        android:id="@+id/et_pwd"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="@string/et_pwd_hint"
+        android:inputType="textPassword"
+        android:textColor="@color/text_downloading_title_color"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="@id/tv_pwd"
+        app:layout_constraintLeft_toRightOf="@id/tv_pwd"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="@id/tv_pwd" />
+
+    <TextView
+        android:id="@+id/tv_pwd_tips"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="8dp"
+        android:text="密码格式错误"
+        android:textColor="@color/text_error_tips"
+        android:textSize="14sp"
+        android:visibility="gone"
+        app:layout_constraintRight_toRightOf="@id/et_pwd"
+        app:layout_constraintTop_toBottomOf="@id/et_pwd"
+        tools:visibility="visible" />
+
+    <LinearLayout
+        android:id="@+id/layout_login_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_pwd_tips"
+        tools:visibility="gone">
+
+        <Button
+            android:id="@+id/btn_register"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="注册"
+            android:textColor="@color/text_color_selector"
+            android:textSize="16sp" />
+
+        <Button
+            android:id="@+id/btn_login"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:enabled="false"
+            android:text="登录"
+            android:textColor="@color/text_color_selector"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layout_register_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_pwd_tips"
+        tools:visibility="visible">
+
+        <Button
+            android:id="@+id/btn_back_to_login"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="返回登录"
+            android:textColor="@color/text_color_selector"
+            android:textSize="16sp" />
+
+        <Button
+            android:id="@+id/btn_confirm"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:enabled="false"
+            android:text="确定"
+            android:textColor="@color/text_color_selector"
+            android:textSize="16sp" />
+    </LinearLayout>
+</android.support.constraint.ConstraintLayout>

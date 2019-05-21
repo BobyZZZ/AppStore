@@ -25,11 +25,12 @@
 
     <TextView
         android:id="@+id/notify_progress"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignBottom="@id/iv_icon"
         android:layout_marginLeft="4dp"
         android:layout_toRightOf="@id/iv_icon"
+        android:layout_toLeftOf="@id/cancel"
         android:textColor="@color/text_downloading_title_color"
         android:textSize="14sp"
         tools:text="50%" />
@@ -41,7 +42,6 @@
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
         android:layout_marginRight="4dp"
-        android:text="@string/cancel"
         android:textColor="@color/text_downloading_title_color"
         android:textSize="14sp" />
 </RelativeLayout>
