@@ -16,11 +16,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bb.googleplaybb.R;
 import com.bb.googleplaybb.domain.AppLiked;
 import com.bb.googleplaybb.net.NetHelper;
-import com.bb.googleplaybb.utils.LoginUtils;
+import com.bb.googleplaybb.utils.LoginUtils2;
 import com.bb.googleplaybb.utils.UIUtils;
 import com.bumptech.glide.Glide;
 
@@ -39,7 +40,6 @@ public class LikedActivity extends AppCompatActivity implements View.OnClickList
     private View mBack;
 
     private AppLiked toUnlikedId;
-    private LoginUtils mUtils;
     private LikedAdapter mAdapter;
 
     public static void start(Context context) {
@@ -51,7 +51,6 @@ public class LikedActivity extends AppCompatActivity implements View.OnClickList
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_liked);
-        mUtils = LoginUtils.getInstance();
 
         initView();
         initEvent();
@@ -90,14 +89,19 @@ public class LikedActivity extends AppCompatActivity implements View.OnClickList
     private void initData() {
         String user_id = MainActivity.currentUser.getUser_id();
         if (!TextUtils.isEmpty(user_id)) {
-            mDatas = LoginUtils.getInstance().getAllLikedApp(user_id);
-            if (mDatas != null) {
-                LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-                mAdapter = new LikedAdapter();
-                mRecyclerView.setLayoutManager(layoutManager);
-                mRecyclerView.setAdapter(mAdapter);
-                mRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-            }
+            LoginUtils2.getAllLikedApp(user_id, new LoginUtils2.OnResult<ArrayList<AppLiked>>() {
+                @Override
+                public void onResult(ArrayList<AppLiked> result) {
+                    mDatas = result;
+                    if (mDatas != null) {
+                        LinearLayoutManager layoutManager = new LinearLayoutManager(LikedActivity.this);
+                        mAdapter = new LikedAdapter();
+                        mRecyclerView.setLayoutManager(layoutManager);
+                        mRecyclerView.setAdapter(mAdapter);
+                        mRecyclerView.addItemDecoration(new DividerItemDecoration(LikedActivity.this, DividerItemDecoration.VERTICAL));
+                    }
+                }
+            });
         }
     }
 
@@ -119,13 +123,20 @@ public class LikedActivity extends AppCompatActivity implements View.OnClickList
     private void unLiked() {
         if (toUnlikedId != null) {
             mMask.setVisibility(View.GONE);
-            mUtils.deleteLiked(toUnlikedId.getUser_id(), toUnlikedId.getApp_id());
+            LoginUtils2.unLiked(toUnlikedId.getUser_id(), toUnlikedId.getApp_id(), new LoginUtils2.OnResult<Boolean>() {
+                @Override
+                public void onResult(Boolean result) {
+                    if (result) {
+                        int index = mDatas.indexOf(toUnlikedId);
+                        mDatas.remove(index);
+                        mAdapter.notifyItemRemoved(index);
 
-            int index = mDatas.indexOf(toUnlikedId);
-            mDatas.remove(index);
-            mAdapter.notifyItemRemoved(index);
-
-            toUnlikedId = null;
+                        toUnlikedId = null;
+                    } else {
+                        Toast.makeText(LikedActivity.this, "取消收藏失败", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
         }
     }
 

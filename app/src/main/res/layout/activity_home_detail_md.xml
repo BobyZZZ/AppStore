@@ -9,15 +9,15 @@
         android:id="@+id/appBar"
         android:layout_width="match_parent"
         android:layout_height="200dp"
-        android:visibility="invisible"
-        android:fitsSystemWindows="true">
+        android:fitsSystemWindows="true"
+        android:visibility="invisible">
 
         <android.support.design.widget.CollapsingToolbarLayout
             android:id="@+id/collapsingToolbarLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:contentScrim="#00ffff"
             android:fitsSystemWindows="true"
+            app:contentScrim="#00ffff"
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
             <include layout="@layout/layout_home_detail_appinfo" />
@@ -31,15 +31,15 @@
     </android.support.design.widget.AppBarLayout>
 
     <!--<android.support.design.widget.FloatingActionButton-->
-        <!--android:id="@+id/fab"-->
-        <!--android:src="@drawable/download_icon"-->
-        <!--android:layout_margin="15dp"-->
-        <!--app:layout_anchor="@id/appBar"-->
-        <!--app:layout_anchorGravity="bottom|end"-->
-        <!--android:elevation="4dp"-->
-        <!--app:pressedTranslationZ="15dp"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content" />-->
+    <!--android:id="@+id/fab"-->
+    <!--android:src="@drawable/download_icon"-->
+    <!--android:layout_margin="15dp"-->
+    <!--app:layout_anchor="@id/appBar"-->
+    <!--app:layout_anchorGravity="bottom|end"-->
+    <!--android:elevation="4dp"-->
+    <!--app:pressedTranslationZ="15dp"-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content" />-->
 
     <android.support.v4.widget.NestedScrollView
         android:id="@+id/fl_container"

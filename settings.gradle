@@ -1,3 +1,2 @@
-include ':app', ':mytest', ':statictest'
+include ':app', ':webser','test2'
 include ':IndicatorLibrary'
-include ':webServer'

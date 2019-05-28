@@ -2,7 +2,6 @@ package com.bb.googleplaybb.domain;
 
 import android.database.Cursor;
 
-import com.bb.googleplaybb.utils.LoginUtils;
 
 /**
  * 收藏应用bean
@@ -10,6 +9,13 @@ import com.bb.googleplaybb.utils.LoginUtils;
  */
 
 public class AppLiked {
+    //收藏表字段
+    public static final String APP_ID = "app_id";
+    public static final String APP_NAME = "app_name";
+    public static final String APP_DES = "app_des";
+    public static final String APP_PACKAGE_NAME = "app_package_name";
+    public static final String APP_ICON = "app_icon";
+    public static final String USER_ID = "user_id";
 
     private String user_id;
     private String app_id;
@@ -18,13 +24,17 @@ public class AppLiked {
     private String app_package_name;
     private String app_icon;
 
+    public AppLiked() {
+
+    }
+
     public AppLiked(Cursor cursor) {
-        user_id = cursor.getString(cursor.getColumnIndex(LoginUtils.LoginDBHelper.USER_ID));
-        app_id = cursor.getString(cursor.getColumnIndex(LoginUtils.LoginDBHelper.APP_ID));
-        app_name = cursor.getString(cursor.getColumnIndex(LoginUtils.LoginDBHelper.APP_NAME));
-        app_des = cursor.getString(cursor.getColumnIndex(LoginUtils.LoginDBHelper.APP_DES));
-        app_package_name = cursor.getString(cursor.getColumnIndex(LoginUtils.LoginDBHelper.APP_PACKAGE_NAME));
-        app_icon = cursor.getString(cursor.getColumnIndex(LoginUtils.LoginDBHelper.APP_ICON));
+        user_id = cursor.getString(cursor.getColumnIndex(USER_ID));
+        app_id = cursor.getString(cursor.getColumnIndex(APP_ID));
+        app_name = cursor.getString(cursor.getColumnIndex(APP_NAME));
+        app_des = cursor.getString(cursor.getColumnIndex(APP_DES));
+        app_package_name = cursor.getString(cursor.getColumnIndex(APP_PACKAGE_NAME));
+        app_icon = cursor.getString(cursor.getColumnIndex(APP_ICON));
     }
 
     public AppLiked(String user_id, String app_id, String app_name, String app_des, String app_package_name, String app_icon) {

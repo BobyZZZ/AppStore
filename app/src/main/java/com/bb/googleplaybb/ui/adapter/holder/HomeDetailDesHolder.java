@@ -4,6 +4,8 @@ import android.animation.Animator;
 import android.animation.ValueAnimator;
 import android.support.design.widget.AppBarLayout;
 import android.support.v4.widget.NestedScrollView;
+import android.util.Log;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewParent;
 import android.widget.ImageView;
@@ -28,6 +30,8 @@ public class HomeDetailDesHolder extends BaseHolder<AppInfo> {
     private ImageView ivArr;
     AppBarLayout mAppBarLayout;
 
+    private boolean isOpen = false;
+
     public HomeDetailDesHolder(AppBarLayout appBar) {
         mAppBarLayout = appBar;
     }
@@ -50,8 +54,6 @@ public class HomeDetailDesHolder extends BaseHolder<AppInfo> {
         return view;
     }
 
-    private boolean isOpen = false;
-
     private void toggle() {
         final LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) llDisplay.getLayoutParams();
         ValueAnimator animator;
@@ -63,8 +65,6 @@ public class HomeDetailDesHolder extends BaseHolder<AppInfo> {
             return;
         }
 
-        System.out.println("shortHeight:" + shortHeight);
-        System.out.println("longHeight:" + longHeight);
         if (isOpen) {
             isOpen = false;
             //关闭  大->小
@@ -153,6 +153,7 @@ public class HomeDetailDesHolder extends BaseHolder<AppInfo> {
         TextView textView = new TextView(UIUtils.getContext());
         textView.setLayoutParams(params);
         textView.setMaxLines(7);
+        textView.setTextSize(TypedValue.COMPLEX_UNIT_SP,18);
         textView.setText(getData().des);
 
         int widthMeasureSpec = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY);
@@ -162,6 +163,7 @@ public class HomeDetailDesHolder extends BaseHolder<AppInfo> {
         textView.measure(widthMeasureSpec, heightMeasureSpec);
         int height = textView.getMeasuredHeight();
 
+        System.out.println("shortHeight:" + height + "---getHeight:" + textView.getHeight());
         return height;
     }
 
@@ -171,6 +173,7 @@ public class HomeDetailDesHolder extends BaseHolder<AppInfo> {
 
         TextView textView = new TextView(UIUtils.getContext());
         textView.setLayoutParams(params);
+        textView.setTextSize(TypedValue.COMPLEX_UNIT_SP,18);
         textView.setText(getData().des);
 
         int widthMeasureSpec = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY);
@@ -179,6 +182,7 @@ public class HomeDetailDesHolder extends BaseHolder<AppInfo> {
         textView.measure(widthMeasureSpec, heightMeasureSpec);
         int height = textView.getMeasuredHeight();
 
+        System.out.println("longHeight:" + height + "---getHeight:" + textView.getHeight());
         return height;
     }
 }

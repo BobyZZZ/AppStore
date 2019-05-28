@@ -13,6 +13,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.text.format.Formatter;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -26,6 +27,7 @@ import com.bb.googleplaybb.R;
 import com.bb.googleplaybb.domain.AppInfo;
 import com.bb.googleplaybb.domain.AppLiked;
 import com.bb.googleplaybb.domain.DownloadInfo;
+import com.bb.googleplaybb.domain.User;
 import com.bb.googleplaybb.manager.AppDownloadManager;
 import com.bb.googleplaybb.manager.DBUtils;
 import com.bb.googleplaybb.net.NetHelper;
@@ -36,13 +38,23 @@ import com.bb.googleplaybb.ui.adapter.holder.HomeDetailSafeHolder;
 import com.bb.googleplaybb.ui.view.DownloadButton;
 import com.bb.googleplaybb.ui.view.LoadingPage;
 import com.bb.googleplaybb.utils.BitmapHelper;
-import com.bb.googleplaybb.utils.LoginUtils;
+import com.bb.googleplaybb.utils.LoginUtils2;
 import com.bb.googleplaybb.utils.UIUtils;
 import com.lidroid.xutils.BitmapUtils;
+
+import org.json.JSONObject;
 
 import java.util.Random;
 
 import cn.sharesdk.onekeyshare.OnekeyShare;
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
+import okhttp3.Response;
 
 /**
  * Created by Boby on 2018/7/16.
@@ -69,7 +81,6 @@ public class HomeDetailActivity extends AppCompatActivity implements View.OnClic
 
     private boolean liked;
     private View mLiked;
-    private LoginUtils mLoginUtils;
 
     public static void startHomeDetailActivity(Context context, String packageName, String appName) {
         Intent intent = new Intent(context, HomeDetailActivity.class);
@@ -86,7 +97,6 @@ public class HomeDetailActivity extends AppCompatActivity implements View.OnClic
         NestedScrollView flContainer = findViewById(R.id.fl_container);
         packageName = getIntent().getStringExtra(PACKAGENAME);
         mAppName = getIntent().getStringExtra(APPNAME);
-        mLoginUtils = LoginUtils.getInstance();
 
         LoadingPage mLoadingPage = new LoadingPage(UIUtils.getContext()) {
             @Override
@@ -130,7 +140,6 @@ public class HomeDetailActivity extends AppCompatActivity implements View.OnClic
         setSupportActionBar(mToolbar);
 
         //设置返回键
-//        mToolbar.setNavigationIcon(R.drawable.ic_feedback);
         ActionBar supportActionBar = getSupportActionBar();
         supportActionBar.setDisplayHomeAsUpEnabled(true);
         supportActionBar.setHomeButtonEnabled(true);
@@ -240,8 +249,13 @@ public class HomeDetailActivity extends AppCompatActivity implements View.OnClic
         mLiked.setOnClickListener(this);
 
         if (MainActivity.currentUser != null && !TextUtils.isEmpty(MainActivity.currentUser.getUser_id())) {
-            liked = mLoginUtils.findLiked(MainActivity.currentUser.getUser_id(), appinfo.id);
-            mLiked.setBackgroundResource(liked ? R.drawable.favorite_red : R.drawable.favorite_gray);
+            LoginUtils2.isLiked(MainActivity.currentUser.getUser_id(), appinfo.id, new LoginUtils2.OnResult<Boolean>() {
+                @Override
+                public void onResult(Boolean result) {
+                    liked = result;
+                    mLiked.setBackgroundResource(liked ? R.drawable.favorite_red : R.drawable.favorite_gray);
+                }
+            });
         }
 
         DownloadInfo downloadInfo = mDownloadManager.getDownloadInfo(appinfo);
@@ -309,7 +323,7 @@ public class HomeDetailActivity extends AppCompatActivity implements View.OnClic
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.vDownload:
-                int state = mVDownload.getState();
+                final int state = mVDownload.getState();
                 if (state == AppDownloadManager.STATE_UNDO || state == AppDownloadManager.STATE_PAUSE || state == AppDownloadManager.STATE_ERROR) {
                     mDownloadManager.download(appinfo);
                 } else if (state == AppDownloadManager.STATE_DOWNLOADING || state == AppDownloadManager.STATE_WAITING) {
@@ -325,18 +339,55 @@ public class HomeDetailActivity extends AppCompatActivity implements View.OnClic
                 if (MainActivity.currentUser != null && !TextUtils.isEmpty(MainActivity.currentUser.getUser_id())) {
                     liked = !liked;
                     if (liked) {
-                        AppLiked appLiked = new AppLiked(MainActivity.currentUser.getUser_id(), appinfo.id, appinfo.name, appinfo.des, appinfo.packageName, appinfo.iconUrl);
-                        long result = mLoginUtils.insertLiked(appLiked);
-                        if (result > 0) {
-                            mLiked.setBackgroundResource(R.drawable.favorite_red);
-                            Toast.makeText(UIUtils.getContext(), "收藏成功", Toast.LENGTH_SHORT).show();
-                        } else {
-                            liked = false;
-                            Toast.makeText(UIUtils.getContext(), "收藏失败", Toast.LENGTH_SHORT).show();
-                        }
+                        final AppLiked appLiked = new AppLiked(MainActivity.currentUser.getUser_id(), appinfo.id, appinfo.name, appinfo.des, appinfo.packageName, appinfo.iconUrl);
+                        Observable<AppLiked> observable = Observable.create(new ObservableOnSubscribe<AppLiked>() {
+                            @Override
+                            public void subscribe(ObservableEmitter<AppLiked> emitter) throws Exception {
+                                emitter.onNext(appLiked);
+                            }
+                        });
+                        observable.observeOn(Schedulers.io())
+                                .map(new Function<AppLiked, Boolean>() {
+                                    @Override
+                                    public Boolean apply(AppLiked appLiked) throws Exception {
+                                        Response res = LoginUtils2.liked(appLiked);
+                                        if (res != null && res.isSuccessful()) {
+                                            String string = res.body().string();
+                                            if (!TextUtils.isEmpty(string)) {
+                                                JSONObject jsonObject = new JSONObject(string);
+                                                boolean result = jsonObject.getBoolean("data");
+                                                return result;
+                                            }
+                                        }
+                                        return false;
+                                    }
+                                })
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe(new Consumer<Boolean>() {
+                                    @Override
+                                    public void accept(Boolean result) throws Exception {
+                                        if (result) {
+                                            mLiked.setBackgroundResource(R.drawable.favorite_red);
+                                            Toast.makeText(UIUtils.getContext(), "收藏成功", Toast.LENGTH_SHORT).show();
+                                        } else {
+                                            liked = false;
+                                            Toast.makeText(UIUtils.getContext(), "收藏失败", Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                });
                     } else {
-                        mLiked.setBackgroundResource(R.drawable.favorite_gray);
-                        mLoginUtils.deleteLiked(MainActivity.currentUser.getUser_id(), appinfo.id);
+                        LoginUtils2.unLiked(MainActivity.currentUser.getUser_id(), appinfo.id, new LoginUtils2.OnResult<Boolean>() {
+                            @Override
+                            public void onResult(Boolean result) {
+                                if (result) {
+                                    //取消收藏成功
+                                    mLiked.setBackgroundResource(R.drawable.favorite_gray);
+                                } else {
+                                    liked = true;
+                                    Toast.makeText(UIUtils.getContext(), "取消收藏失败", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
                     }
                 } else {
                     //未登录

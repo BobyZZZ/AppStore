@@ -13,7 +13,6 @@ import android.widget.RelativeLayout;
 
 import com.bb.googleplaybb.R;
 import com.bb.googleplaybb.domain.AppInfo;
-import com.bb.googleplaybb.manager.NotifycationHelper;
 import com.bb.googleplaybb.net.NetHelper;
 import com.bb.googleplaybb.net.protocol.HomeNetProtocol;
 import com.bb.googleplaybb.ui.activity.HomeDetailActivity;
@@ -44,6 +43,8 @@ public class HomeFragment extends BaseFragment {
 
     @Override
     public LoadingPage.ResultState onLoad() {
+        //清楚轮播
+        UIUtils.getHandler().removeCallbacksAndMessages(null);
         //请求网络
         mHomeProtocol = new HomeNetProtocol();
         data = mHomeProtocol.getData(0);
@@ -175,6 +176,9 @@ public class HomeFragment extends BaseFragment {
 
         @Override
         public Object instantiateItem(ViewGroup container, int position) {
+            if (pictures == null || pictures.size() == 0) {
+                return null;
+            }
             position = position % pictures.size();
             String url = pictures.get(position);
             ImageView imageView = new ImageView(UIUtils.getContext());

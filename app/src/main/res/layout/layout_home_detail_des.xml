@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical">
 
     <TextView
@@ -15,11 +16,14 @@
         android:id="@+id/ll_display"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:paddingTop="1dp"
         android:layout_marginTop="3dp">
 
         <TextView
             android:id="@+id/tv_des"
             android:textColor="#ccc"
+            android:textSize="18sp"
+            tools:text="dalkjdlajdg;lajsdg;akjsdglkasjdg;lkajsdgkajsdglhasdgjkwhegodalkjdlajdg;lajsdg;akjsdglkasjdg;lkajsdgkajsdglhasdgjkwhegoiwhegoiwhgaoi;hgohadslkgalskdglaksdglkasdgdalkjdlajdg;lajsdg;akjsdglkasjdg;lkajsdgkajsdglhasdgjkwhegoiwhegoiwhgaoi;hgohadslkgalskdglaksdglkasdgdalkjdlajdg;lajsdg;akjsdglkasjdg;lkajsdgkajsdglhasdgjkwhegoiwhegoiwhgaoi;hgohadslkgalskdglaksdglkasdgdalkjdlajdg;lajsdg;akjsdglkasjdg;lkajsdgkajsdglhasdgjkwhegoiwhegoiwhgaoi;hgohadslkgalskdglaksdglkasdgdalkjdlajdg;lajsdg;akjsdglkasjdg;lkajsdgkajsdglhasdgjkwhegoiwhegoiwhgaoi;hgohadslkgalskdglaksdglkasdgiwhegoiwhgaoi;hgohadslkgalskdglaksdglkasdglk"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
     </LinearLayout>

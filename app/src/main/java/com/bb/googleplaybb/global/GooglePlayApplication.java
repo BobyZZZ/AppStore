@@ -48,4 +48,12 @@ public class GooglePlayApplication extends Application {
     public static void putIp(String ip) {
         getContext().getSharedPreferences("ipConfig",Context.MODE_PRIVATE).edit().putString("ip",ip).commit();
     }
+
+    public static String getDBIp() {
+        return getContext().getSharedPreferences("ipConfig",Context.MODE_PRIVATE).getString("db_ip","10.0.0.2");
+    }
+
+    public static void putDBIp(String dbIp) {
+        getContext().getSharedPreferences("ipConfig",Context.MODE_PRIVATE).edit().putString("db_ip",dbIp).commit();
+    }
 }

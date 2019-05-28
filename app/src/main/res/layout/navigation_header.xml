@@ -9,7 +9,7 @@
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:layout_marginBottom="4dp"
-        android:background="@drawable/select_picture"
+        android:src="@drawable/login_icon"
         app:layout_constraintBottom_toTopOf="@id/tv_login"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent" />

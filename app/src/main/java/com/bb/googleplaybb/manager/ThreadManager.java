@@ -46,7 +46,6 @@ public class ThreadManager {
                 executor = new ThreadPoolExecutor(corePoolSize, maxPoolSize, keepAliveTime, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), Executors.defaultThreadFactory(), new ThreadPoolExecutor.AbortPolicy());
             }
             executor.execute(r);
-            Log.e("ThreadManager", "execute: " + r);
         }
 
         public void cancel(Runnable r) {
@@ -54,7 +53,6 @@ public class ThreadManager {
                 BlockingQueue<Runnable> queue = executor.getQueue();
                 if (queue.contains(r)) {
                     queue.remove(r);
-                    Log.e("ThreadManager", "cancel: " + r);
                 }
             }
         }

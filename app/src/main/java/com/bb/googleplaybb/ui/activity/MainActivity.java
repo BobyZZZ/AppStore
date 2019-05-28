@@ -5,7 +5,6 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -20,7 +19,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -34,18 +32,14 @@ import com.bb.googleplaybb.domain.User;
 import com.bb.googleplaybb.global.GooglePlayApplication;
 import com.bb.googleplaybb.net.NetHelper;
 import com.bb.googleplaybb.ui.fragment.BaseFragment;
-import com.bb.googleplaybb.ui.fragment.HomeFragment;
-import com.bb.googleplaybb.utils.FileUtils;
 import com.bb.googleplaybb.utils.FragmentFactory;
-import com.bb.googleplaybb.utils.LoginUtils;
+import com.bb.googleplaybb.utils.LoginUtils2;
 import com.bb.googleplaybb.utils.SharePreferenceUtils;
 import com.bb.googleplaybb.utils.UIUtils;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.viewpagerindicator.TabPageIndicator;
-
-import org.w3c.dom.Text;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -80,12 +74,16 @@ public class MainActivity extends AppCompatActivity {
 
     private void login() {
         setUserManageVisible(false);
-        User userFromSP = SharePreferenceUtils.getUser(this);
+        final User userFromSP = SharePreferenceUtils.getUser();
         if (userFromSP != null) {
-            User result = LoginUtils.getInstance().findUser(userFromSP.getUser_id(), userFromSP.getUser_pwd());
-            if (result != null) {
-                loginSuccess(result);
-            }
+            LoginUtils2.login(userFromSP.getUser_id(), userFromSP.getUser_pwd(), new LoginUtils2.OnResult<User>() {
+                @Override
+                public void onResult(final User result) {
+                    if (result != null) {
+                        loginSuccess(result);
+                    }
+                }
+            });
         }
     }
 
@@ -127,7 +125,8 @@ public class MainActivity extends AppCompatActivity {
             mLogin.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    LoginActivity.startForResult(MainActivity.this, 0);
+//                    LoginActivity.startForResult(MainActivity.this, 0);
+                    LoginActivity2.startForResult(MainActivity.this,0);
                 }
             });
         } else {
@@ -139,29 +138,10 @@ public class MainActivity extends AppCompatActivity {
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.navigation_modifyIP:
-                        final Dialog dialog = new Dialog(MainActivity.this);
-                        View view = dialog.getLayoutInflater().inflate(R.layout.dialog_modify_ip, null);
-                        dialog.setContentView(view);
-                        Button btn_modify = view.findViewById(R.id.btn_modify);
-                        Button btn_cancel = view.findViewById(R.id.btn_cancel);
-                        final EditText et_ip = view.findViewById(R.id.et_ip);
-                        et_ip.setText(GooglePlayApplication.getIp());
-                        btn_cancel.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                dialog.dismiss();
-                            }
-                        });
-                        btn_modify.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                String ip = et_ip.getText().toString();
-                                NetHelper.URL = "http://" + ip + ":8080/WebInfos/";
-                                GooglePlayApplication.putIp(ip);
-                                dialog.dismiss();
-                            }
-                        });
-                        dialog.show();
+                        showDialog(true);
+                        break;
+                    case R.id.navigation_modifyDBIP:
+                        showDialog(false);
                         break;
                     case R.id.navigation_downloading:
                         //打开正在下载页面
@@ -176,7 +156,7 @@ public class MainActivity extends AppCompatActivity {
                         setUserManageVisible(false);
                         break;
                 }
-                item.setChecked(true);
+//                item.setChecked(true);//设置选中
                 mDrawer.closeDrawers();
                 return true;
             }
@@ -214,6 +194,41 @@ public class MainActivity extends AppCompatActivity {
         }.start();
     }
 
+    private void showDialog(final boolean apkDownloadUrl) {
+        final Dialog dialog = new Dialog(MainActivity.this);
+        View view = dialog.getLayoutInflater().inflate(R.layout.dialog_modify_ip, null);
+        dialog.setContentView(view);
+        Button btn_modify = view.findViewById(R.id.btn_modify);
+        Button btn_cancel = view.findViewById(R.id.btn_cancel);
+        final EditText et_ip = view.findViewById(R.id.et_ip);
+        if (apkDownloadUrl) {
+            et_ip.setText(GooglePlayApplication.getIp());
+        } else {
+            et_ip.setText(GooglePlayApplication.getDBIp());
+        }
+        btn_cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+        btn_modify.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String ip = et_ip.getText().toString();
+                if (apkDownloadUrl) {
+                    NetHelper.URL = "http://" + ip + ":8080/WebInfos/";
+                    GooglePlayApplication.putIp(ip);
+                } else {
+                    LoginUtils2.modifyDBIP(ip);
+                    GooglePlayApplication.putDBIp(ip);
+                }
+                dialog.dismiss();
+            }
+        });
+        dialog.show();
+    }
+
     class MyAdapter extends FragmentPagerAdapter {
 
         private String[] tabNames;
@@ -248,16 +263,13 @@ public class MainActivity extends AppCompatActivity {
             case RESULT_DELETE:
                 int deleteCount = data.getIntExtra(DownloadingManagerActivity.DELETE, 0);
                 if (deleteCount > 0) {
-//                    FragmentFactory.createFragment(mViewPager.getCurrentItem()).loadData();
                     BaseFragment fragment = FragmentFactory.createFragment(mViewPager.getCurrentItem());
                     fragment.refresh();
                 }
                 break;
 
             case RESULT_LOGIN:
-                String user_id = data.getStringExtra("user_id");
-                String user_pwd = data.getStringExtra("user_pwd");
-                User user = LoginUtils.getInstance().findUser(user_id, user_pwd);
+                User user = data.getParcelableExtra("user");
                 if (user != null) {
                     loginSuccess(user);
                 }
@@ -282,20 +294,17 @@ public class MainActivity extends AppCompatActivity {
 
     private void logout() {
         if (currentUser != null) {
-//            currentUser.setUser_id("");
-//            currentUser.setUser_pwd("");
-//            currentUser.setUser_name("");
             currentUser = null;
-            SharePreferenceUtils.setUser(this, "", "");
+            SharePreferenceUtils.setUser("", "");
 
             mLogin.setText(R.string.login);
             mLogin.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    LoginActivity.startForResult(MainActivity.this, 0);
+                    LoginActivity2.startForResult(MainActivity.this, 0);
                 }
             });
-            mTouxiang.setImageResource(R.drawable.select_picture);
+            mTouxiang.setImageResource(R.drawable.login_icon);
         }
     }
 

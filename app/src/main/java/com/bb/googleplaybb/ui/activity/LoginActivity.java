@@ -18,15 +18,21 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bb.googleplaybb.R;
+import com.bb.googleplaybb.domain.User;
+import com.bb.googleplaybb.manager.ThreadManager;
 import com.bb.googleplaybb.mvp.IUserView;
 import com.bb.googleplaybb.mvp.UserPresenter;
+import com.bb.googleplaybb.net.NetHelper;
 import com.bb.googleplaybb.utils.FileUtils;
-import com.bb.googleplaybb.utils.LoginUtils;
+import com.bb.googleplaybb.utils.LoginUtils2;
 import com.bb.googleplaybb.utils.SharePreferenceUtils;
 import com.bb.googleplaybb.utils.UIUtils;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
+
+import okhttp3.Call;
+import okhttp3.Response;
 
 /**
  * Created by Boby on 2019/5/16.
@@ -53,6 +59,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     private String photoPath;
     private int REQUEST_CODE_PICK_PHOTO = 0;
+    private View mLayoutPb;
 
     public static void startForResult(Activity context, int requestCode) {
         Intent intent = new Intent(context, LoginActivity.class);
@@ -85,6 +92,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         mBtnBackToLogin = findViewById(R.id.btn_back_to_login);
         mBtnConfirm = findViewById(R.id.btn_confirm);
         mEtUserName = findViewById(R.id.et_user_name);
+
+        mLayoutPb = findViewById(R.id.layout_pb);
     }
 
     private void initEvent() {
@@ -93,6 +102,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         mBtnBackToLogin.setOnClickListener(this);
         mBtnConfirm.setOnClickListener(this);
         mIcon.setOnClickListener(this);
+        mLayoutPb.setOnClickListener(this);
 
         vId.addTextChangedListener(new TextWatcher() {
             @Override
@@ -105,27 +115,39 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
             @Override
             public void afterTextChanged(Editable s) {
-                String text = s.toString();
+                final String text = s.toString();
                 if (TextUtils.isEmpty(text)) {
                     mIdTips.setVisibility(View.VISIBLE);
                     mIdTips.setText("帐号不能为空");
                     idIsOk = false;
+                    setBtnEnable();
                 } else {
                     //查找数据库，用户名是否已存在
-                    if (!toLogin && LoginUtils.getInstance().isPhoneExist(text)) {
-                        mIdTips.setVisibility(View.VISIBLE);
-                        mIdTips.setText("帐号已存在");
-                        idIsOk = false;
-                    } else if (isPhoneNumber(text)) {
-                        mIdTips.setVisibility(View.GONE);
-                        idIsOk = true;
-                    } else {
-                        mIdTips.setVisibility(View.VISIBLE);
-                        mIdTips.setText("请输入正确手机号码");
-                        idIsOk = false;
-                    }
+                    ThreadManager.getThreadPool().execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            final boolean idExisted = LoginUtils2.isExisted(LoginUtils2.TYPE_ID, text);
+                            UIUtils.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (!toLogin && idExisted) {
+                                        mIdTips.setVisibility(View.VISIBLE);
+                                        mIdTips.setText("帐号已存在");
+                                        idIsOk = false;
+                                    } else if (isPhoneNumber(text)) {
+                                        mIdTips.setVisibility(View.GONE);
+                                        idIsOk = true;
+                                    } else {
+                                        mIdTips.setVisibility(View.VISIBLE);
+                                        mIdTips.setText("请输入正确手机号码");
+                                        idIsOk = false;
+                                    }
+                                    setBtnEnable();
+                                }
+                            });
+                        }
+                    });
                 }
-                setBtnEnable();
             }
         });
 
@@ -170,23 +192,35 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
             @Override
             public void afterTextChanged(Editable s) {
-                String text = s.toString();
+                final String text = s.toString();
                 if (TextUtils.isEmpty(text)) {
                     mUserNameTips.setVisibility(View.VISIBLE);
                     mUserNameTips.setText("用户名不能为空");
                     nameIsOk = false;
+                    setBtnEnable();
                 } else {
                     //查找数据库，用户名是否已存在
-                    if (LoginUtils.getInstance().isUserNameExist(text)) {
-                        mUserNameTips.setVisibility(View.VISIBLE);
-                        mUserNameTips.setText("用户名已存在");
-                        nameIsOk = false;
-                    } else {
-                        mUserNameTips.setVisibility(View.GONE);
-                        nameIsOk = true;
-                    }
+                    ThreadManager.getThreadPool().execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            final boolean existed = LoginUtils2.isExisted(LoginUtils2.TYPE_NAME, text);
+                            UIUtils.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (existed) {
+                                        mUserNameTips.setVisibility(View.VISIBLE);
+                                        mUserNameTips.setText("用户名已存在");
+                                        nameIsOk = false;
+                                    } else {
+                                        mUserNameTips.setVisibility(View.GONE);
+                                        nameIsOk = true;
+                                    }
+                                    setBtnEnable();
+                                }
+                            });
+                        }
+                    });
                 }
-                setBtnEnable();
             }
         });
     }
@@ -207,18 +241,48 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 break;
             case R.id.btn_confirm:
                 //注册
-                boolean registerResult = mPresenter.register();
-                if (registerResult) {
-                    //登录
-                    Toast.makeText(UIUtils.getContext(), "注册成功", Toast.LENGTH_LONG).show();
-                    login();
-                }
+                mLayoutPb.setVisibility(View.VISIBLE);
+                NetHelper.uploadImage(NetHelper.DIRECTION_TOUXIANG, photoPath, new NetHelper.OnUploadResultCallback() {
+                    @Override
+                    public void onFailure(Call call) {
+                        UIUtils.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                mLayoutPb.setVisibility(View.GONE);
+                                Toast.makeText(UIUtils.getContext(), "onFailure", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) {
+                        if (response.isSuccessful()) {
+                            mPresenter.register(new UserPresenter.OnRegisterResult() {
+                                @Override
+                                public void onResult(boolean result) {
+                                    if (result) {
+                                        mLayoutPb.setVisibility(View.GONE);
+                                        //登录
+                                        Toast.makeText(UIUtils.getContext(), "注册成功", Toast.LENGTH_LONG).show();
+                                        login();
+                                    } else {
+                                        Toast.makeText(UIUtils.getContext(), "注册失败", Toast.LENGTH_LONG).show();
+                                    }
+                                }
+                            });
+                        }
+                    }
+                });
                 break;
             case R.id.iv_icon:
                 //选择头像
                 Intent intentToPickPic = new Intent(Intent.ACTION_PICK, null);
                 intentToPickPic.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
                 startActivityForResult(intentToPickPic, REQUEST_CODE_PICK_PHOTO);
+//                Intent intent = new Intent(LoginActivity.this, chooseImageActivity.class);
+//                startActivity(intent);
+                break;
+            default:
                 break;
         }
     }
@@ -236,6 +300,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     //将照片显示在 ivImage上
                     Glide.with(this).load(photoPath).apply(requestOptions1).into(mIcon);
                 }
+                setBtnEnable();
                 break;
         }
     }
@@ -254,32 +319,50 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             mLoginBtns.setVisibility(View.GONE);
             mRegisterBtns.setVisibility(View.VISIBLE);
 
-            if (LoginUtils.getInstance().isPhoneExist(getId())) {
-                mIdTips.setVisibility(View.VISIBLE);
-                mIdTips.setText("帐号已存在");
-            }
+            ThreadManager.getThreadPool().execute(new Runnable() {
+                @Override
+                public void run() {
+                    final boolean existed = LoginUtils2.isExisted(LoginUtils2.TYPE_ID, getId());
+                    UIUtils.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (existed) {
+                                mIdTips.setVisibility(View.VISIBLE);
+                                mIdTips.setText("帐号已存在");
+                            }
+                        }
+                    });
+                }
+            });
         }
         this.toLogin = toLogin;
     }
 
     private void setBtnEnable() {
         mBtnLogin.setEnabled(idIsOk && pwdIsOk);
-        mBtnConfirm.setEnabled(idIsOk && pwdIsOk && nameIsOk);
+        mBtnConfirm.setEnabled(!TextUtils.isEmpty(photoPath) && idIsOk && pwdIsOk && nameIsOk);
     }
 
     private void login() {
-        boolean result = mPresenter.login();
-        if (result) {
-            SharePreferenceUtils.setUser(this, getId(), getPwd());
-            Intent intent = new Intent();
-            intent.putExtra("user_id", getId());
-            intent.putExtra("user_pwd", getPwd());
-            setResult(MainActivity.RESULT_LOGIN, intent);
-            finish();
-        } else {
-            //id或密码错误提示
-            Toast.makeText(UIUtils.getContext(), "id或密码错误", Toast.LENGTH_LONG).show();
-        }
+        mPresenter.login(new UserPresenter.OnLoginResult() {
+            @Override
+            public void onResult(User result) {
+                if (result == null) {
+
+                } else if (result.getResultCode() == User.RESULT_FINDED_USER) {
+                    SharePreferenceUtils.setUser(getId(), getPwd());
+                    Intent intent = new Intent();
+                    intent.putExtra("user", result);
+                    setResult(MainActivity.RESULT_LOGIN, intent);
+                    finish();
+                } else if (result.getResultCode() == User.RESULT_ID_OR_PWD_WRONG) {
+                    //id或密码错误提示
+                    Toast.makeText(UIUtils.getContext(), "id或密码错误", Toast.LENGTH_LONG).show();
+                } else if (result.getResultCode() == User.RESULT_RESPONSE_FAILED) {
+                    Toast.makeText(UIUtils.getContext(), "网络请求失败", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
     }
 
     @Override
@@ -318,7 +401,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     public void onFocusChange(View v, boolean hasFocus) {
         if (!hasFocus) {
             EditText editText = (EditText) v;
-            String text = editText.getText().toString();
+            final String text = editText.getText().toString();
             switch (v.getId()) {
                 case R.id.et_user_name:
                     if (TextUtils.isEmpty(text)) {
@@ -327,14 +410,25 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                         nameIsOk = false;
                     } else {
                         //查找数据库，用户名是否已存在
-                        if (LoginUtils.getInstance().isUserNameExist(text)) {
-                            mUserNameTips.setVisibility(View.VISIBLE);
-                            mUserNameTips.setText("用户名已存在");
-                            nameIsOk = false;
-                        } else {
-                            mUserNameTips.setVisibility(View.GONE);
-                            nameIsOk = true;
-                        }
+                        ThreadManager.getThreadPool().execute(new Runnable() {
+                            @Override
+                            public void run() {
+                                final boolean existed = LoginUtils2.isExisted(LoginUtils2.TYPE_NAME, text);
+                                UIUtils.runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        if (existed) {
+                                            mUserNameTips.setVisibility(View.VISIBLE);
+                                            mUserNameTips.setText("用户名已存在");
+                                            nameIsOk = false;
+                                        } else {
+                                            mUserNameTips.setVisibility(View.GONE);
+                                            nameIsOk = true;
+                                        }
+                                    }
+                                });
+                            }
+                        });
                     }
                     break;
                 case R.id.et_id:

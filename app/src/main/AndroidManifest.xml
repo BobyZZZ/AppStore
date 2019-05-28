@@ -33,6 +33,7 @@
         <activity android:name=".ui.activity.LoginActivity" />
         <activity android:name=".ui.activity.LikedActivity" />
         <activity android:name=".ui.activity.chooseImageActivity" />
+        <activity android:name=".ui.activity.LoginActivity2"/>
 
         <provider
             android:name="android.support.v4.content.FileProvider"
