@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -242,7 +243,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             case R.id.btn_confirm:
                 //注册
                 mLayoutPb.setVisibility(View.VISIBLE);
-                NetHelper.uploadImage(NetHelper.DIRECTION_TOUXIANG, photoPath, new NetHelper.OnUploadResultCallback() {
+                NetHelper.uploadImage(LoginUtils2.UPLOAD_URL, photoPath, new NetHelper.OnUploadResultCallback() {
                     @Override
                     public void onFailure(Call call) {
                         UIUtils.runOnUiThread(new Runnable() {

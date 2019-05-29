@@ -43,7 +43,7 @@ public class LoginUtils2 {
     public static String REGISTER_URL = "http://" + GooglePlayApplication.getDBIp() + ":8080/user/register";
     public static String CHECK_ID_URL = "http://" + GooglePlayApplication.getDBIp() + ":8080/user/checkId/";
     public static String CHECK_Name_URL = "http://" + GooglePlayApplication.getDBIp() + ":8080/user/checkName/";
-
+    public static String UPLOAD_URL = "http://" + GooglePlayApplication.getDBIp() + ":8080/user/upload";
 
     public static void modifyDBIP(String ip) {
         BASE_URL = "http://" + ip + ":8080/user/";
@@ -51,6 +51,7 @@ public class LoginUtils2 {
         REGISTER_URL = "http://" + ip + ":8080/user/register";
         CHECK_ID_URL = "http://" + ip + ":8080/user/checkId/";
         CHECK_Name_URL = "http://" + ip + ":8080/user/checkName/";
+        UPLOAD_URL = "http://" + ip + ":8080/user/upload";
     }
 
     /**

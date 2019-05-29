@@ -18,7 +18,10 @@ import okhttp3.Response;
 
 public class NetHelper {
     public static String URL = "http://" + GooglePlayApplication.getIp() + ":8080/WebInfos/";
-    public static String DIRECTION_TOUXIANG = "http://" + GooglePlayApplication.getIp() + ":8080/WebInfos/touxiang/";
+
+    public static void modifyId(String ip) {
+        URL = "http://" + ip + ":8080/WebInfos/";
+    }
 
     public static Response get(String url) {
         OkHttpClient client = new OkHttpClient();
@@ -69,7 +72,6 @@ public class NetHelper {
                     if (onUploadResult != null) {
                         onUploadResult.onResponse(call, response);
                         Log.e("upload", "onResponse: ");
-
                     }
                 }
             });

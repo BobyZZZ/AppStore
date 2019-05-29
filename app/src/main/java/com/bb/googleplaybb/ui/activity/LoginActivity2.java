@@ -1,23 +1,30 @@
 package com.bb.googleplaybb.ui.activity;
 
+import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.TypeEvaluator;
 import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.PixelFormat;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.provider.MediaStore;
+import android.provider.Settings;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -27,7 +34,6 @@ import android.widget.Toast;
 
 import com.bb.googleplaybb.R;
 import com.bb.googleplaybb.domain.User;
-import com.bb.googleplaybb.manager.ThreadManager;
 import com.bb.googleplaybb.mvp.IUserView;
 import com.bb.googleplaybb.mvp.UserPresenter;
 import com.bb.googleplaybb.net.NetHelper;
@@ -56,7 +62,7 @@ public class LoginActivity2 extends BaseActivity implements View.OnClickListener
     private View mLayoutRegister;
     private Button mMBtnConfirm;
     private View mTvIcon;
-    private View mLayoutPb;
+//    private View mLayoutPb;
 
     private PopupWindow mPopupWindow;
     private UserPresenter mPresenter;
@@ -64,6 +70,10 @@ public class LoginActivity2 extends BaseActivity implements View.OnClickListener
     private String photoPath;
     private int mOriginalColor;
     private int mColorAccent;
+    private View mProgressing;
+    private WindowManager mWindowManager;
+    private WindowManager.LayoutParams mWindowLayoutParams;
+    private TextView mTvPopup;
 
 
     public static void startForResult(Activity context, int requestCode) {
@@ -85,7 +95,7 @@ public class LoginActivity2 extends BaseActivity implements View.OnClickListener
     private void initData() {
         mOriginalColor = mTvId.getCurrentTextColor();
         TypedValue typedValue = new TypedValue();
-        getTheme().resolveAttribute(R.attr.colorAccent,typedValue,true);
+        getTheme().resolveAttribute(R.attr.colorAccent, typedValue, true);
         mColorAccent = typedValue.data;
     }
 
@@ -104,50 +114,12 @@ public class LoginActivity2 extends BaseActivity implements View.OnClickListener
         mNameWarming = findViewById(R.id.iv_name_warming);
         mMBtnConfirm = findViewById(R.id.btn_confirm);
         mTvIcon = findViewById(R.id.tv_icon);
-        mLayoutPb = findViewById(R.id.layout_pb);
+//        mLayoutPb = findViewById(R.id.layout_pb);
     }
 
     private void initEvent() {
         mEtUserName.addTextChangedListener(new Watcher(mNameWarming));
-        mEtId.addTextChangedListener(new Watcher(mIdWarming) {
-            @Override
-            public void afterTextChanged(Editable s) {
-                super.afterTextChanged(s);
-//                final String text = s.toString();
-//                if (TextUtils.isEmpty(text)) {
-//                    mIdTips.setVisibility(View.VISIBLE);
-//                    mIdTips.setText("帐号不能为空");
-//                    idIsOk = false;
-//                    setBtnEnable();
-//                } else {
-//                    //查找数据库，用户名是否已存在
-//                    ThreadManager.getThreadPool().execute(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            final boolean idExisted = LoginUtils2.isExisted(LoginUtils2.TYPE_ID, text);
-//                            UIUtils.runOnUiThread(new Runnable() {
-//                                @Override
-//                                public void run() {
-//                                    if (!toLogin && idExisted) {
-//                                        mIdTips.setVisibility(View.VISIBLE);
-//                                        mIdTips.setText("帐号已存在");
-//                                        idIsOk = false;
-//                                    } else if (isPhoneNumber(text)) {
-//                                        mIdTips.setVisibility(View.GONE);
-//                                        idIsOk = true;
-//                                    } else {
-//                                        mIdTips.setVisibility(View.VISIBLE);
-//                                        mIdTips.setText("请输入正确手机号码");
-//                                        idIsOk = false;
-//                                    }
-//                                    setBtnEnable();
-//                                }
-//                            });
-//                        }
-//                    });
-//                }
-            }
-        });
+        mEtId.addTextChangedListener(new Watcher(mIdWarming));
         mEtPwd.addTextChangedListener(new Watcher(mPwdWarming));
 
         setFocusListener();
@@ -156,18 +128,76 @@ public class LoginActivity2 extends BaseActivity implements View.OnClickListener
         mTvSwitch.setOnClickListener(this);
         //登录按键
         mMBtnConfirm.setOnClickListener(this);
-        //选择头像
-//        mIvIcon.setOnClickListener(this);
-        mLayoutPb.setOnClickListener(this);
+//        mLayoutPb.setOnClickListener(this);
 
     }
 
+    private void showProgress() {
+        if (mProgressing == null) {
+            mProgressing = LayoutInflater.from(this).inflate(R.layout.view_progressing, null);
+        }
+        if (mWindowManager == null) {
+            mWindowManager = (WindowManager) getApplicationContext().getSystemService(
+                    Context.WINDOW_SERVICE);
+        }
+        if (mWindowLayoutParams == null) {
+
+            mWindowLayoutParams = createWindowLayoutParams(mTvUserName.getWindowToken());
+        }
+
+//        getDialogPermission();
+        mWindowManager.addView(mProgressing, mWindowLayoutParams);
+    }
+
+    private void removeProgress() {
+        if (mProgressing == null) {
+            return;
+        }
+        if (mWindowManager == null) {
+            mWindowManager = (WindowManager) getApplicationContext().getSystemService(
+                    Context.WINDOW_SERVICE);
+        }
+        mWindowManager.removeView(mProgressing);
+    }
+
+    /**
+     * create dark layout
+     *
+     * @param token
+     * @return
+     */
+    private WindowManager.LayoutParams createWindowLayoutParams(IBinder token) {
+        WindowManager.LayoutParams p = new WindowManager.LayoutParams();
+        p.gravity = Gravity.START | Gravity.TOP;
+        p.width = WindowManager.LayoutParams.MATCH_PARENT;
+        p.height = WindowManager.LayoutParams.MATCH_PARENT;
+        p.format = PixelFormat.TRANSLUCENT;
+        //不用申请权限
+        p.type = WindowManager.LayoutParams.LAST_SUB_WINDOW;
+//        p.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;//需要权限
+        p.token = token;
+        p.softInputMode = WindowManager.LayoutParams.SOFT_INPUT_STATE_UNCHANGED;
+        return p;
+    }
+
+    //获取显示在其他应用之上权限
+    private void getDialogPermission() {
+        //Android6.0 + need require permission
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (!Settings.canDrawOverlays(this)) {
+                Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION);
+                startActivity(intent);
+                return;
+            }
+        }
+    }
+
     private void login() {
-        mLayoutPb.setVisibility(View.VISIBLE);
+        showProgress();
         mPresenter.login(new UserPresenter.OnLoginResult() {
             @Override
             public void onResult(User result) {
-                mLayoutPb.setVisibility(View.GONE);
+                removeProgress();
                 if (result == null) {
 
                 } else if (result.getResultCode() == User.RESULT_FINDED_USER) {
@@ -232,14 +262,14 @@ public class LoginActivity2 extends BaseActivity implements View.OnClickListener
                             Toast.makeText(UIUtils.getContext(), "头像不能为空", Toast.LENGTH_SHORT).show();
                             return;
                         }
-                        mLayoutPb.setVisibility(View.VISIBLE);
-                        NetHelper.uploadImage(NetHelper.DIRECTION_TOUXIANG, photoPath, new NetHelper.OnUploadResultCallback() {
+                        showProgress();
+                        NetHelper.uploadImage(LoginUtils2.UPLOAD_URL, photoPath, new NetHelper.OnUploadResultCallback() {
                             @Override
                             public void onFailure(Call call) {
                                 UIUtils.runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        mLayoutPb.setVisibility(View.GONE);
+                                        removeProgress();
                                         Toast.makeText(UIUtils.getContext(), "onFailure", Toast.LENGTH_SHORT).show();
                                     }
                                 });
@@ -251,7 +281,7 @@ public class LoginActivity2 extends BaseActivity implements View.OnClickListener
                                     mPresenter.register(new UserPresenter.OnRegisterResult() {
                                         @Override
                                         public void onResult(boolean result) {
-                                            mLayoutPb.setVisibility(View.GONE);
+                                            removeProgress();
                                             if (result) {
                                                 //登录
                                                 Toast.makeText(UIUtils.getContext(), "注册成功", Toast.LENGTH_LONG).show();
@@ -289,13 +319,19 @@ public class LoginActivity2 extends BaseActivity implements View.OnClickListener
             if (target.getVisibility() != View.VISIBLE) {
                 return;
             }
-            mPopupWindow = new PopupWindow(this);
-            View view = View.inflate(this, R.layout.popup_window_layout, null);
-            TextView textView = view.findViewById(R.id.text);
-            String text = (pwd ? mTvPwd.getText() : (id ? mTvId.getText() : mTvUserName.getText())).toString() + textView.getText();
-            textView.setText(text);
-            mPopupWindow.setBackgroundDrawable(null);
-            mPopupWindow.setContentView(view);
+            if (mPopupWindow == null) {
+                mPopupWindow = new PopupWindow(this);
+                View view = View.inflate(this, R.layout.popup_window_layout, null);
+                mTvPopup = view.findViewById(R.id.text);
+                mPopupWindow.setBackgroundDrawable(null);
+                mPopupWindow.setContentView(view);
+            }
+
+            if (mTvPopup != null) {
+                String text = (pwd ? mTvPwd.getText() : (id ? mTvId.getText() : mTvUserName.getText())).toString() + "不能为空";
+                mTvPopup.setText(text);
+            }
+
             mPopupWindow.showAsDropDown(target);
         }
     }
@@ -399,6 +435,7 @@ public class LoginActivity2 extends BaseActivity implements View.OnClickListener
         }, startColor, endColor);
         animator.setDuration(100);
         animator.start();
+//        return animator;
     }
 
     private float getYDistance() {
@@ -421,28 +458,33 @@ public class LoginActivity2 extends BaseActivity implements View.OnClickListener
         return textView.getMeasuredHeight();
     }
 
-    private void scale(final TextView view, float from, float to) {
-        ValueAnimator scaleAnimator = ValueAnimator.ofFloat(from, to);
-        scaleAnimator.setDuration(100);
-        scaleAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                float value = (float) animation.getAnimatedValue();
-                view.setTextSize(TypedValue.COMPLEX_UNIT_SP, value);
-            }
-        });
-        scaleAnimator.start();
+    private ObjectAnimator scale(final TextView view, float from, float to) {
+        ObjectAnimator objectAnimator = ObjectAnimator.ofFloat(view, "textSize", from, to);
+//        objectAnimator.setDuration(100);
+//        objectAnimator.start();
+        return objectAnimator;
+//        ValueAnimator scaleAnimator = ValueAnimator.ofFloat(from, to);
+//        scaleAnimator.setDuration(100);
+//        scaleAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+//            @Override
+//            public void onAnimationUpdate(ValueAnimator animation) {
+//                float value = (float) animation.getAnimatedValue();
+//                view.setTextSize(TypedValue.COMPLEX_UNIT_SP, value);
+//            }
+//        });
+//        scaleAnimator.start();
     }
 
-    private void translateY(final View view, final float disY) {
+    private ObjectAnimator translateY(final View view, final float disY) {
         ObjectAnimator translationY;
         if (disY < 0) {
             translationY = ObjectAnimator.ofFloat(view, "translationY", 0, disY);
         } else {
             translationY = ObjectAnimator.ofFloat(view, "translationY", -disY, 0);
         }
-        translationY.setDuration(100);
-        translationY.start();
+//        translationY.setDuration(100);
+//        translationY.start();
+        return translationY;
     }
 
     @Override
@@ -505,16 +547,24 @@ public class LoginActivity2 extends BaseActivity implements View.OnClickListener
             if (hasFocus) {
                 colorAnima(mView, mOriginalColor, mColorAccent);
                 if (TextUtils.isEmpty(content)) {
-                    translateY(mView, -yDistance);
-                    scale(mView, 18, 14);
+                    ObjectAnimator translateY = translateY(mView, -yDistance);
+                    ObjectAnimator scale = scale(mView, 18, 14);
+                    AnimatorSet set = new AnimatorSet();
+                    set.setDuration(100);
+                    set.play(translateY).with(scale);
+                    set.start();
                     showPopWindow();
                 }
             } else {
                 removePopupWindow();
                 colorAnima(mView, mColorAccent, mOriginalColor);
                 if (TextUtils.isEmpty(content)) {
-                    translateY(mView, yDistance);
-                    scale(mView, 14, 18);
+                    ObjectAnimator translateY = translateY(mView, yDistance);
+                    ObjectAnimator scale = scale(mView, 14, 18);
+                    AnimatorSet set = new AnimatorSet();
+                    set.setDuration(100);
+                    set.play(translateY).with(scale);
+                    set.start();
                 }
             }
         }
