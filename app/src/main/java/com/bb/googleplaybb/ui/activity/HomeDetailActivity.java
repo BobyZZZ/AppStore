@@ -13,7 +13,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.text.format.Formatter;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -27,7 +26,6 @@ import com.bb.googleplaybb.R;
 import com.bb.googleplaybb.domain.AppInfo;
 import com.bb.googleplaybb.domain.AppLiked;
 import com.bb.googleplaybb.domain.DownloadInfo;
-import com.bb.googleplaybb.domain.User;
 import com.bb.googleplaybb.manager.AppDownloadManager;
 import com.bb.googleplaybb.manager.DBUtils;
 import com.bb.googleplaybb.net.NetHelper;
@@ -35,6 +33,7 @@ import com.bb.googleplaybb.net.protocol.HomeDetailNetProtocol;
 import com.bb.googleplaybb.ui.adapter.holder.HomeDetailDesHolder;
 import com.bb.googleplaybb.ui.adapter.holder.HomeDetailPicHolder;
 import com.bb.googleplaybb.ui.adapter.holder.HomeDetailSafeHolder;
+import com.bb.googleplaybb.ui.view.ConflictNestedScrollView;
 import com.bb.googleplaybb.ui.view.DownloadButton;
 import com.bb.googleplaybb.ui.view.LoadingPage;
 import com.bb.googleplaybb.utils.BitmapHelper;
@@ -94,7 +93,7 @@ public class HomeDetailActivity extends AppCompatActivity implements View.OnClic
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home_detail_md);
-        NestedScrollView flContainer = findViewById(R.id.fl_container);
+        ConflictNestedScrollView flContainer = findViewById(R.id.fl_container);
         packageName = getIntent().getStringExtra(PACKAGENAME);
         mAppName = getIntent().getStringExtra(APPNAME);
 
@@ -156,13 +155,6 @@ public class HomeDetailActivity extends AppCompatActivity implements View.OnClic
         //设置遮罩颜色
         CollapsingToolbarLayout collapsingToolbarLayout = findViewById(R.id.collapsingToolbarLayout);
         collapsingToolbarLayout.setContentScrimColor(color);
-//        FloatingActionButton floatingActionButton = findViewById(R.id.fab);
-//        floatingActionButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//
-//            }
-//        });
     }
 
     @Override

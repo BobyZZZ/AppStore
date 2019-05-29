@@ -16,6 +16,7 @@ import android.widget.TextView;
 
 import com.bb.googleplaybb.R;
 import com.bb.googleplaybb.domain.AppInfo;
+import com.bb.googleplaybb.ui.view.ConflictNestedScrollView;
 import com.bb.googleplaybb.utils.UIUtils;
 
 /**
@@ -24,7 +25,7 @@ import com.bb.googleplaybb.utils.UIUtils;
 
 public class HomeDetailDesHolder extends BaseHolder<AppInfo> {
 
-    private LinearLayout llDisplay;
+    private LinearLayout llDisplay,llControl;
     private RelativeLayout rlControl;
     private TextView tvName, tvDes;
     private ImageView ivArr;
@@ -39,18 +40,26 @@ public class HomeDetailDesHolder extends BaseHolder<AppInfo> {
     @Override
     public View initView() {
         View view = UIUtils.inflate(R.layout.layout_home_detail_des);
+        llControl = view.findViewById(R.id.ll_control);
         llDisplay = view.findViewById(R.id.ll_display);
         rlControl = view.findViewById(R.id.rl_control);
         tvName = view.findViewById(R.id.tv_name);
         tvDes = view.findViewById(R.id.tv_des);
         ivArr = view.findViewById(R.id.iv_arr);
 
-        rlControl.setOnClickListener(new View.OnClickListener() {
+        llControl.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.e("zyc", "onClick: " );
                 toggle();
             }
         });
+//        rlControl.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                toggle();
+//            }
+//        });
         return view;
     }
 
@@ -99,7 +108,7 @@ public class HomeDetailDesHolder extends BaseHolder<AppInfo> {
                     ivArr.setImageResource(R.drawable.arrow_up);
 //                    //scrollView滑到底部
                     mAppBarLayout.setExpanded(false);
-                    NestedScrollView scrollView = getScrollView();
+                    ConflictNestedScrollView scrollView = getScrollView();
                     scrollView.fullScroll(ScrollView.FOCUS_DOWN);
                 } else {
                     //向下
@@ -121,12 +130,12 @@ public class HomeDetailDesHolder extends BaseHolder<AppInfo> {
         animator.start();
     }
 
-    private NestedScrollView getScrollView() {
+    private ConflictNestedScrollView getScrollView() {
         ViewParent parent = tvDes.getParent();
-        while (!(parent instanceof NestedScrollView)) {
+        while (!(parent instanceof ConflictNestedScrollView)) {
             parent = parent.getParent();
         }
-        return (NestedScrollView) parent;
+        return (ConflictNestedScrollView) parent;
     }
 
     @Override
