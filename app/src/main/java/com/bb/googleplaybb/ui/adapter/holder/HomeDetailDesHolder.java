@@ -3,7 +3,6 @@ package com.bb.googleplaybb.ui.adapter.holder;
 import android.animation.Animator;
 import android.animation.ValueAnimator;
 import android.support.design.widget.AppBarLayout;
-import android.support.v4.widget.NestedScrollView;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;

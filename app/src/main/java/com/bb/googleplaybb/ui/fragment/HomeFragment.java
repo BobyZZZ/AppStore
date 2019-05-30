@@ -2,6 +2,7 @@ package com.bb.googleplaybb.ui.fragment;
 
 import android.content.Intent;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +14,7 @@ import android.widget.RelativeLayout;
 
 import com.bb.googleplaybb.R;
 import com.bb.googleplaybb.domain.AppInfo;
+import com.bb.googleplaybb.domain.TopNew;
 import com.bb.googleplaybb.net.NetHelper;
 import com.bb.googleplaybb.net.protocol.HomeNetProtocol;
 import com.bb.googleplaybb.ui.activity.HomeDetailActivity;
@@ -34,7 +36,7 @@ import java.util.ArrayList;
 public class HomeFragment extends BaseFragment {
 
     private ArrayList<AppInfo> data;
-    private ArrayList<String> pictures;
+    private ArrayList<TopNew> pictures;
 
     private int mPreviousSelected = 0;
     private ViewPager viewPager;
@@ -70,21 +72,23 @@ public class HomeFragment extends BaseFragment {
         viewPager.setCurrentItem(pictures.size() * 100000);
         rlRoot.addView(viewPager);
         //viewPager设置触摸事件，点击停止自动轮播，松开回复轮播
-        viewPager.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        UIUtils.getHandler().removeCallbacksAndMessages(null);
-                        break;
-                    case MotionEvent.ACTION_UP:
-                    case MotionEvent.ACTION_CANCEL:
-                        new AutoPlayTask().start();
-                        break;
-                }
-                return false;
-            }
-        });
+//        viewPager.setOnTouchListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View v, MotionEvent event) {
+//                switch (event.getAction()) {
+//                    case MotionEvent.ACTION_DOWN:
+//                        Log.e("topnews", "onTouch: down--停止轮播");
+//                        UIUtils.getHandler().removeCallbacksAndMessages(null);
+//                        break;
+//                    case MotionEvent.ACTION_UP:
+//                    case MotionEvent.ACTION_CANCEL:
+//                        Log.e("topnews", "onTouch: up-cancel:开始轮播");
+//                        new AutoPlayTask().start();
+//                        break;
+//                }
+//                return false;
+//            }
+//        });
 
         //添加指示器
         final LinearLayout llContainer = new LinearLayout(UIUtils.getContext());
@@ -179,13 +183,21 @@ public class HomeFragment extends BaseFragment {
             if (pictures == null || pictures.size() == 0) {
                 return null;
             }
-            position = position % pictures.size();
-            String url = pictures.get(position);
-            ImageView imageView = new ImageView(UIUtils.getContext());
+            final int newPosition = position % pictures.size();
+            final TopNew topNew = pictures.get(newPosition);
+            ImageView imageView = new android.support.v7.widget.AppCompatImageView(UIUtils.getContext());
             imageView.setScaleType(ImageView.ScaleType.FIT_XY);
-            bitmapUtils.display(imageView, NetHelper.URL + url);
+            bitmapUtils.display(imageView, NetHelper.URL + topNew.getUrl());
 
             container.addView(imageView);
+
+            imageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Log.e("imageView", "onClick: " + newPosition);
+                    HomeDetailActivity.startHomeDetailActivity(UIUtils.getContext(),topNew.getPackageName(),topNew.getName());
+                }
+            });
             return imageView;
         }
 
